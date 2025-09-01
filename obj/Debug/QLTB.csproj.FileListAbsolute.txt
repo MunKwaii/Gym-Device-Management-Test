@@ -1,0 +1,13 @@
+D:\KT\QLTB\bin\Debug\QLTB.exe.config
+D:\KT\QLTB\bin\Debug\QLTB.exe
+D:\KT\QLTB\bin\Debug\QLTB.pdb
+D:\KT\QLTB\obj\Debug\QLTB.csproj.AssemblyReference.cache
+D:\KT\QLTB\obj\Debug\QLTB.Properties.Resources.resources
+D:\KT\QLTB\obj\Debug\QLTB.csproj.GenerateResource.cache
+D:\KT\QLTB\obj\Debug\QLTB.csproj.CoreCompileInputs.cache
+D:\KT\QLTB\obj\Debug\QLTB.exe
+D:\KT\QLTB\obj\Debug\QLTB.pdb
+D:\KT\QLTB\obj\Debug\QLTB.Form_ThietBiList.resources
+D:\KT\QLTB\obj\Debug\QLTB.Form_UpdateStatus.resources
+D:\KT\QLTB\obj\Debug\QLTB.Form_BaoTriLog.resources
+D:\KT\QLTB\obj\Debug\QLTB.Form_Report.resources
