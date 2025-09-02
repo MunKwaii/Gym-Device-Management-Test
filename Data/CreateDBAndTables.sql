@@ -506,3 +506,29 @@ RETURN
     GROUP BY YEAR(NgayBaoTri), MONTH(NgayBaoTri)
 );
 GO
+
+
+CREATE FUNCTION fn_ReportTopChiPhi_Multi()
+RETURNS @Result TABLE
+(
+    MaTB VARCHAR(10),
+    TenTB NVARCHAR(100),
+    TongChiPhi FLOAT
+)
+AS
+BEGIN
+    -- Bước 1: tổng chi phí từng thiết bị
+    INSERT INTO @Result (MaTB, TenTB, TongChiPhi)
+    SELECT bt.MaTB, tb.TenTB, SUM(bt.ChiPhi)
+    FROM BaoTri bt
+    INNER JOIN ThietBi tb ON bt.MaTB = tb.MaTB
+    GROUP BY bt.MaTB, tb.TenTB;
+
+    -- Bước 2: giữ lại Top 5
+    DELETE FROM @Result
+    WHERE MaTB NOT IN (
+        SELECT TOP 5 MaTB FROM @Result ORDER BY TongChiPhi DESC
+    );
+
+    RETURN;
+END
