@@ -19,6 +19,8 @@ namespace QLTB
             InitializeComponent();
             LoadLoaiThietBi();
             LoadThietBi();
+            dgvThietBi.ColumnHeadersHeight = 30;
+
 
         }
 
@@ -72,6 +74,8 @@ namespace QLTB
                     cboLoaiTB.DisplayMember = "TenLoai";
                     cboLoaiTB.ValueMember = "MaLoai";
                     cboLoaiTB.DataSource = dt;
+                    cboLoaiTB.SelectedIndex = -1;
+
                 }
             }
             catch (Exception ex)
@@ -148,10 +152,7 @@ namespace QLTB
             }
         }
 
-        private void dgvThietBi_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
-        {
-            
-        }
+     
 
         private void dgvThietBi_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -183,10 +184,21 @@ namespace QLTB
             }
         }
 
-        private void btnReport_Click(object sender, EventArgs e)
+
+        private void tabReport_Click(object sender, EventArgs e)
         {
-            Form_Report frmReport = new Form_Report();
-            frmReport.ShowDialog();
+       
+        }
+
+        private void guna2TabControl1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (guna2TabControl1.SelectedTab == tabReport)
+            {
+                tabReport.Controls.Clear();
+                UserControl_Report uc = new UserControl_Report();
+                uc.Dock = DockStyle.Fill;
+                tabReport.Controls.Add(uc);
+            }
         }
     }
 }

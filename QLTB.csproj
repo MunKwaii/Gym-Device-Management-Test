@@ -33,8 +33,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Guna.UI2, Version=2.0.4.7, Culture=neutral, PublicKeyToken=8b9d14aa5142e261, processorArchitecture=MSIL">
+      <HintPath>packages\Guna.UI2.WinForms.2.0.4.7\lib\net472\Guna.UI2.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -53,12 +59,6 @@
     <Compile Include="Form_UpdateStatus.cs.Designer.cs">
       <DependentUpon>Form_UpdateStatus.cs.cs</DependentUpon>
     </Compile>
-    <Compile Include="Form_Report.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Form_Report.Designer.cs">
-      <DependentUpon>Form_Report.cs</DependentUpon>
-    </Compile>
     <Compile Include="Form_ThietBiList.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -73,11 +73,14 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UserControl_Report.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControl_Report.Designer.cs">
+      <DependentUpon>UserControl_Report.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Form_BaoTriLog.resx">
       <DependentUpon>Form_BaoTriLog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Form_Report.resx">
-      <DependentUpon>Form_Report.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form_UpdateStatus.cs.resx">
       <DependentUpon>Form_UpdateStatus.cs.cs</DependentUpon>
@@ -94,6 +97,10 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="UserControl_Report.resx">
+      <DependentUpon>UserControl_Report.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

@@ -10,4 +10,6 @@ D:\KT\QLTB\obj\Debug\QLTB.pdb
 D:\KT\QLTB\obj\Debug\QLTB.Form_ThietBiList.resources
 D:\KT\QLTB\obj\Debug\QLTB.Form_UpdateStatus.resources
 D:\KT\QLTB\obj\Debug\QLTB.Form_BaoTriLog.resources
-D:\KT\QLTB\obj\Debug\QLTB.Form_Report.resources
+D:\KT\QLTB\bin\Debug\Guna.UI2.dll
+D:\KT\QLTB\obj\Debug\QLTB.csproj.Up2Date
+D:\KT\QLTB\obj\Debug\QLTB.UserControl_Report.resources
