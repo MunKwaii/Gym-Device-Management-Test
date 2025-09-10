@@ -12,6 +12,10 @@ namespace QLTB
         public UserControl_Report()
         {
             InitializeComponent();
+            dgvCanBaoTri.ColumnHeadersHeight = 30;
+            dgvTongChiPhi.ColumnHeadersHeight = 30;
+            dgvTopChiPhi.ColumnHeadersHeight = 30;
+
         }
 
         private void UserControl_Report_Load(object sender, EventArgs e)
@@ -20,9 +24,9 @@ namespace QLTB
             LoadTongChiPhi();
             LoadTopChiPhi();
 
-            lblCountCanBaoTri.Text = "Cần bảo trì: " + GetCountCanBaoTri();
-            lblTongChiPhi.Text = "Tổng chi phí TB01: " + GetTongChiPhiThietBi("TB01");
-            lblAvgChiPhi.Text = "Trung bình chi phí TB01: " + GetAvgChiPhiBaoTri("TB01");
+            lblCountCanBaoTri.Text = GetCountCanBaoTri().ToString(); ;
+            lblTongChiPhi.Text = GetTongChiPhiThietBi("TB01").ToString(); ;
+            lblAvgChiPhi.Text = GetAvgChiPhiBaoTri("TB01").ToString();
         }
 
         private void LoadCanBaoTri()
@@ -135,14 +139,9 @@ namespace QLTB
                 double tong = GetTongChiPhiThietBi(maTB);
                 double avg = GetAvgChiPhiBaoTri(maTB);
 
-                lblTongChiPhi.Text = $"Tổng chi phí {maTB}: {tong:#,##0.##}";
-                lblAvgChiPhi.Text = $"Trung bình chi phí {maTB}: {avg:#,##0.##}";
+                lblTongChiPhi.Text = $"{maTB}: {tong:#,##0.##}";
+                lblAvgChiPhi.Text = $"{maTB}: {avg:#,##0.##}";
             }
-        }
-
-        private void tabTopChiPhi_Click(object sender, EventArgs e)
-        {
-
         }
     }
 }

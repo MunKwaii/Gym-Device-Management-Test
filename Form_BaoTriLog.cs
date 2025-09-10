@@ -21,6 +21,8 @@ namespace QLTB
             InitializeComponent();
             _maTB = maTB;
             _tenTB = tenTB;
+            dgvBaoTri.ColumnHeadersHeight = 30;
+
         }
 
         private void Form_BaoTriLog_Load(object sender, EventArgs e)
@@ -75,6 +77,11 @@ namespace QLTB
                     dgvBaoTri.DataSource = dt;
                 }
             }
+        }
+
+        private void btnDong_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }

@@ -20,8 +20,11 @@ namespace QLTB
             LoadLoaiThietBi();
             LoadThietBi();
             dgvThietBi.ColumnHeadersHeight = 30;
-
-
+            dgvThietBi.Columns["MaTB"].Width = 70;
+            dgvThietBi.Columns["TenTB"].Width = 200;
+            dgvThietBi.Columns["MaLoai"].Width = 70;
+            dgvThietBi.Columns["TenLoai"].Width = 150;
+            dgvThietBi.Columns["NgayNhap"].Width = 100;
         }
 
         private void btnThem_Click(object sender, EventArgs e)
@@ -199,6 +202,11 @@ namespace QLTB
                 uc.Dock = DockStyle.Fill;
                 tabReport.Controls.Add(uc);
             }
+        }
+
+        private void btnDong_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
         }
     }
 }
