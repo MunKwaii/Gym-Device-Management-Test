@@ -52,7 +52,7 @@
             // dtNgayBaoTri
             // 
             this.dtNgayBaoTri.Checked = true;
-            this.dtNgayBaoTri.FillColor = System.Drawing.Color.Aqua;
+            this.dtNgayBaoTri.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(206)))), ((int)(((byte)(147)))), ((int)(((byte)(216)))));
             this.dtNgayBaoTri.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.dtNgayBaoTri.Format = System.Windows.Forms.DateTimePickerFormat.Long;
             this.dtNgayBaoTri.Location = new System.Drawing.Point(221, 135);
@@ -137,12 +137,13 @@
             // 
             // btnDong
             // 
+            this.btnDong.BorderRadius = 20;
             this.btnDong.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
             this.btnDong.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
             this.btnDong.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
             this.btnDong.DisabledState.FillColor2 = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
             this.btnDong.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
-            this.btnDong.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.btnDong.Font = new System.Drawing.Font("Segoe UI Semibold", 9.75F, System.Drawing.FontStyle.Bold);
             this.btnDong.ForeColor = System.Drawing.Color.White;
             this.btnDong.Location = new System.Drawing.Point(587, 304);
             this.btnDong.Name = "btnDong";
@@ -153,12 +154,13 @@
             // 
             // btnLuu
             // 
+            this.btnLuu.BorderRadius = 20;
             this.btnLuu.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
             this.btnLuu.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
             this.btnLuu.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
             this.btnLuu.DisabledState.FillColor2 = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
             this.btnLuu.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
-            this.btnLuu.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.btnLuu.Font = new System.Drawing.Font("Segoe UI Semibold", 9.75F, System.Drawing.FontStyle.Bold);
             this.btnLuu.ForeColor = System.Drawing.Color.White;
             this.btnLuu.Location = new System.Drawing.Point(329, 304);
             this.btnLuu.Name = "btnLuu";

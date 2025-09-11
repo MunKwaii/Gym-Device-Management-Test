@@ -22,6 +22,7 @@ namespace QLTB
             _maTB = maTB;
             _tenTB = tenTB;
             dgvBaoTri.ColumnHeadersHeight = 30;
+            ApplyCustomTheme();
 
         }
 
@@ -82,6 +83,43 @@ namespace QLTB
         private void btnDong_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void ApplyCustomTheme()
+        {
+            // Theme chung
+            dgvBaoTri.Theme = Guna.UI2.WinForms.Enums.DataGridViewPresetThemes.Default;
+            dgvBaoTri.EnableHeadersVisualStyles = false;
+
+            // Header
+            dgvBaoTri.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(102, 126, 234);   // xanh tím nhạt
+            dgvBaoTri.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvBaoTri.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            dgvBaoTri.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dgvBaoTri.ColumnHeadersHeight = 40;
+
+            // Dòng bình thường
+            dgvBaoTri.DefaultCellStyle.BackColor = Color.White;
+            dgvBaoTri.DefaultCellStyle.ForeColor = Color.Black;
+            dgvBaoTri.DefaultCellStyle.Font = new Font("Segoe UI", 10);
+            dgvBaoTri.DefaultCellStyle.SelectionBackColor = Color.FromArgb(186, 104, 200); // tím nhạt khi chọn
+            dgvBaoTri.DefaultCellStyle.SelectionForeColor = Color.White;
+            dgvBaoTri.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+
+            // Dòng xen kẽ
+            dgvBaoTri.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 245, 250); // xám rất nhạt
+
+            // DGV chung
+            dgvBaoTri.BackgroundColor = Color.White;
+            dgvBaoTri.BorderStyle = BorderStyle.None;
+            dgvBaoTri.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+            dgvBaoTri.RowTemplate.Height = 35;
+
+            dgvBaoTri.ReadOnly = true;
+            dgvBaoTri.AllowUserToAddRows = false;
+            dgvBaoTri.AllowUserToResizeRows = false;
+            dgvBaoTri.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvBaoTri.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         }
     }
 }

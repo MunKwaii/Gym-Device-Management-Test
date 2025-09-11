@@ -3,16 +3,12 @@
   "WorkspaceRootPath": "D:\\KT\\QLTB\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{EA5CF8DA-8BB5-4407-9D7F-8B499CB88068}|QLTB.csproj|D:\\KT\\QLTB\\form_thietbilist.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{EA5CF8DA-8BB5-4407-9D7F-8B499CB88068}|QLTB.csproj|solutionrelative:form_thietbilist.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{EA5CF8DA-8BB5-4407-9D7F-8B499CB88068}|QLTB.csproj|D:\\KT\\QLTB\\form_thietbilist.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
-      "RelativeMoniker": "D:0:0:{EA5CF8DA-8BB5-4407-9D7F-8B499CB88068}|QLTB.csproj|solutionrelative:form_thietbilist.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{EA5CF8DA-8BB5-4407-9D7F-8B499CB88068}|QLTB.csproj|d:\\kt\\qltb\\form_updatestatus.cs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "AbsoluteMoniker": "D:0:0:{EA5CF8DA-8BB5-4407-9D7F-8B499CB88068}|QLTB.csproj|D:\\KT\\QLTB\\form_updatestatus.cs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
       "RelativeMoniker": "D:0:0:{EA5CF8DA-8BB5-4407-9D7F-8B499CB88068}|QLTB.csproj|solutionrelative:form_updatestatus.cs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EA5CF8DA-8BB5-4407-9D7F-8B499CB88068}|QLTB.csproj|d:\\kt\\qltb\\form_thietbilist.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{EA5CF8DA-8BB5-4407-9D7F-8B499CB88068}|QLTB.csproj|solutionrelative:form_thietbilist.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     },
     {
       "AbsoluteMoniker": "D:0:0:{EA5CF8DA-8BB5-4407-9D7F-8B499CB88068}|QLTB.csproj|D:\\KT\\QLTB\\form_baotrilog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
@@ -23,16 +19,20 @@
       "RelativeMoniker": "D:0:0:{EA5CF8DA-8BB5-4407-9D7F-8B499CB88068}|QLTB.csproj|solutionrelative:usercontrol_report.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{EA5CF8DA-8BB5-4407-9D7F-8B499CB88068}|QLTB.csproj|D:\\KT\\QLTB\\usercontrol_report.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{EA5CF8DA-8BB5-4407-9D7F-8B499CB88068}|QLTB.csproj|solutionrelative:usercontrol_report.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{EA5CF8DA-8BB5-4407-9D7F-8B499CB88068}|QLTB.csproj|D:\\KT\\QLTB\\form_thietbilist.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{EA5CF8DA-8BB5-4407-9D7F-8B499CB88068}|QLTB.csproj|solutionrelative:form_thietbilist.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{EA5CF8DA-8BB5-4407-9D7F-8B499CB88068}|QLTB.csproj|D:\\KT\\QLTB\\form_thietbilist.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EA5CF8DA-8BB5-4407-9D7F-8B499CB88068}|QLTB.csproj|solutionrelative:form_thietbilist.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{EA5CF8DA-8BB5-4407-9D7F-8B499CB88068}|QLTB.csproj|D:\\KT\\QLTB\\form_baotrilog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{EA5CF8DA-8BB5-4407-9D7F-8B499CB88068}|QLTB.csproj|solutionrelative:form_baotrilog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EA5CF8DA-8BB5-4407-9D7F-8B499CB88068}|QLTB.csproj|D:\\KT\\QLTB\\usercontrol_report.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EA5CF8DA-8BB5-4407-9D7F-8B499CB88068}|QLTB.csproj|solutionrelative:usercontrol_report.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{EA5CF8DA-8BB5-4407-9D7F-8B499CB88068}|QLTB.csproj|D:\\KT\\QLTB\\form_updatestatus.cs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -54,11 +54,35 @@
       "DocumentGroups": [
         {
           "DockedHeight": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{b1e99781-ab81-11d0-b683-00aa00a3ee26}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Form_BaoTriLog.cs [Design]",
+              "DocumentMoniker": "D:\\KT\\QLTB\\Form_BaoTriLog.cs",
+              "RelativeDocumentMoniker": "Form_BaoTriLog.cs",
+              "ToolTip": "D:\\KT\\QLTB\\Form_BaoTriLog.cs [Design]",
+              "RelativeToolTip": "Form_BaoTriLog.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-30T06:50:28.679Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Form_UpdateStatus.cs.cs [Design]",
+              "DocumentMoniker": "D:\\KT\\QLTB\\Form_UpdateStatus.cs.cs",
+              "RelativeDocumentMoniker": "Form_UpdateStatus.cs.cs",
+              "ToolTip": "D:\\KT\\QLTB\\Form_UpdateStatus.cs.cs [Design]",
+              "RelativeToolTip": "Form_UpdateStatus.cs.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-30T06:51:03.423Z",
+              "EditorCaption": " [Design]"
             },
             {
               "$type": "Document",
@@ -75,18 +99,6 @@
             {
               "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "Form_BaoTriLog.cs [Design]",
-              "DocumentMoniker": "D:\\KT\\QLTB\\Form_BaoTriLog.cs",
-              "RelativeDocumentMoniker": "Form_BaoTriLog.cs",
-              "ToolTip": "D:\\KT\\QLTB\\Form_BaoTriLog.cs [Design]",
-              "RelativeToolTip": "Form_BaoTriLog.cs [Design]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-30T06:50:28.679Z",
-              "EditorCaption": " [Design]"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
               "Title": "UserControl_Report.cs [Design]",
               "DocumentMoniker": "D:\\KT\\QLTB\\UserControl_Report.cs",
               "RelativeDocumentMoniker": "UserControl_Report.cs",
@@ -97,50 +109,12 @@
               "EditorCaption": " [Design]"
             },
             {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Form_UpdateStatus.cs.cs [Design]",
-              "DocumentMoniker": "D:\\KT\\QLTB\\Form_UpdateStatus.cs.cs",
-              "RelativeDocumentMoniker": "Form_UpdateStatus.cs.cs",
-              "ToolTip": "D:\\KT\\QLTB\\Form_UpdateStatus.cs.cs [Design]",
-              "RelativeToolTip": "Form_UpdateStatus.cs.cs [Design]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-30T06:51:03.423Z",
-              "EditorCaption": " [Design]"
-            },
-            {
               "$type": "Bookmark",
               "Name": "ST:0:0:{e5c86464-96be-4d7c-9a8b-abcb3bbf5f92}"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Form_ThietBiList.cs",
-              "DocumentMoniker": "D:\\KT\\QLTB\\Form_ThietBiList.cs",
-              "RelativeDocumentMoniker": "Form_ThietBiList.cs",
-              "ToolTip": "D:\\KT\\QLTB\\Form_ThietBiList.cs",
-              "RelativeToolTip": "Form_ThietBiList.cs",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAAABEAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-30T03:38:06.559Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "UserControl_Report.cs",
-              "DocumentMoniker": "D:\\KT\\QLTB\\UserControl_Report.cs",
-              "RelativeDocumentMoniker": "UserControl_Report.cs",
-              "ToolTip": "D:\\KT\\QLTB\\UserControl_Report.cs",
-              "RelativeToolTip": "UserControl_Report.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAYAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-10T09:12:43.796Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 4,
               "Title": "Form_ThietBiList.Designer.cs",
               "DocumentMoniker": "D:\\KT\\QLTB\\Form_ThietBiList.Designer.cs",
               "RelativeDocumentMoniker": "Form_ThietBiList.Designer.cs",
@@ -153,15 +127,41 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 5,
+              "Title": "Form_ThietBiList.cs",
+              "DocumentMoniker": "D:\\KT\\QLTB\\Form_ThietBiList.cs",
+              "RelativeDocumentMoniker": "Form_ThietBiList.cs",
+              "ToolTip": "D:\\KT\\QLTB\\Form_ThietBiList.cs",
+              "RelativeToolTip": "Form_ThietBiList.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAPgAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-30T03:38:06.559Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
               "Title": "Form_BaoTriLog.cs",
               "DocumentMoniker": "D:\\KT\\QLTB\\Form_BaoTriLog.cs",
               "RelativeDocumentMoniker": "Form_BaoTriLog.cs",
               "ToolTip": "D:\\KT\\QLTB\\Form_BaoTriLog.cs",
               "RelativeToolTip": "Form_BaoTriLog.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAAAVAAAAAAAAAA==",
+              "ViewState": "AgIAAGkAAAAAAAAAAAAmwHoAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-08-30T08:24:58.331Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "UserControl_Report.cs",
+              "DocumentMoniker": "D:\\KT\\QLTB\\UserControl_Report.cs",
+              "RelativeDocumentMoniker": "UserControl_Report.cs",
+              "ToolTip": "D:\\KT\\QLTB\\UserControl_Report.cs",
+              "RelativeToolTip": "UserControl_Report.cs",
+              "ViewState": "AgIAAH8AAAAAAAAAAAAcwIsAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-10T09:12:43.796Z",
               "EditorCaption": ""
             },
             {

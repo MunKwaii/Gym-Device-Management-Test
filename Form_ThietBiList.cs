@@ -25,6 +25,8 @@ namespace QLTB
             dgvThietBi.Columns["MaLoai"].Width = 70;
             dgvThietBi.Columns["TenLoai"].Width = 150;
             dgvThietBi.Columns["NgayNhap"].Width = 100;
+            ApplyCustomTheme();
+            ApplyTabTheme();
         }
 
         private void btnThem_Click(object sender, EventArgs e)
@@ -208,5 +210,70 @@ namespace QLTB
         {
             Application.Exit();
         }
+
+        private void ApplyCustomTheme()
+        {
+            // Theme chung
+            dgvThietBi.Theme = Guna.UI2.WinForms.Enums.DataGridViewPresetThemes.Default;
+            dgvThietBi.EnableHeadersVisualStyles = false;
+
+            // Header
+            dgvThietBi.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(102, 126, 234);   // xanh tím nhạt
+            dgvThietBi.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvThietBi.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            dgvThietBi.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dgvThietBi.ColumnHeadersHeight = 40;
+
+            // Dòng bình thường
+            dgvThietBi.DefaultCellStyle.BackColor = Color.White;
+            dgvThietBi.DefaultCellStyle.ForeColor = Color.Black;
+            dgvThietBi.DefaultCellStyle.Font = new Font("Segoe UI", 10);
+            dgvThietBi.DefaultCellStyle.SelectionBackColor = Color.FromArgb(186, 104, 200); // tím nhạt khi chọn
+            dgvThietBi.DefaultCellStyle.SelectionForeColor = Color.White;
+            dgvThietBi.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+
+            // Dòng xen kẽ
+            dgvThietBi.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 245, 250); // xám rất nhạt
+
+            // DGV chung
+            dgvThietBi.BackgroundColor = Color.White;
+            dgvThietBi.BorderStyle = BorderStyle.None;
+            dgvThietBi.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+            dgvThietBi.RowTemplate.Height = 35;
+
+            dgvThietBi.ReadOnly = true;
+            dgvThietBi.AllowUserToAddRows = false;
+            dgvThietBi.AllowUserToResizeRows = false;
+            dgvThietBi.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvThietBi.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        }
+        private void ApplyTabTheme()
+        {
+            // Nền TabControl
+            guna2TabControl1.TabMenuBackColor = Color.FromArgb(102, 126, 234); // xanh tím
+
+            // Font chung
+            guna2TabControl1.TabButtonIdleState.Font = new Font("Segoe UI", 10, FontStyle.Regular);
+
+            // Tab chưa chọn
+            guna2TabControl1.TabButtonIdleState.FillColor = Color.FromArgb(102, 126, 234);
+            guna2TabControl1.TabButtonIdleState.ForeColor = Color.WhiteSmoke;   // chữ sáng hơn
+            guna2TabControl1.TabButtonIdleState.InnerColor = Color.Transparent;
+
+            // Tab hover
+            guna2TabControl1.TabButtonHoverState.FillColor = Color.FromArgb(126, 87, 194); // tím đậm
+            guna2TabControl1.TabButtonHoverState.ForeColor = Color.White;                 // chữ trắng rõ ràng
+            guna2TabControl1.TabButtonHoverState.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+
+            // Tab đang chọn
+            guna2TabControl1.TabButtonSelectedState.FillColor = Color.FromArgb(186, 104, 200); // tím hồng
+            guna2TabControl1.TabButtonSelectedState.ForeColor = Color.White;                   // chữ trắng
+            guna2TabControl1.TabButtonSelectedState.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            guna2TabControl1.TabButtonSelectedState.InnerColor = Color.White;
+
+            // Kích thước nút tab
+            guna2TabControl1.TabButtonSize = new Size(180, 50);
+        }
+
     }
 }

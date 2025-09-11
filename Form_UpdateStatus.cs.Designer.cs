@@ -96,12 +96,13 @@
             // 
             // btnDong
             // 
+            this.btnDong.BorderRadius = 20;
             this.btnDong.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
             this.btnDong.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
             this.btnDong.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
             this.btnDong.DisabledState.FillColor2 = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
             this.btnDong.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
-            this.btnDong.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.btnDong.Font = new System.Drawing.Font("Segoe UI Semibold", 9.75F, System.Drawing.FontStyle.Bold);
             this.btnDong.ForeColor = System.Drawing.Color.White;
             this.btnDong.Location = new System.Drawing.Point(462, 314);
             this.btnDong.Name = "btnDong";
@@ -112,12 +113,13 @@
             // 
             // btnCapNhap
             // 
+            this.btnCapNhap.BorderRadius = 20;
             this.btnCapNhap.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
             this.btnCapNhap.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
             this.btnCapNhap.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
             this.btnCapNhap.DisabledState.FillColor2 = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
             this.btnCapNhap.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
-            this.btnCapNhap.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.btnCapNhap.Font = new System.Drawing.Font("Segoe UI Semibold", 9.75F, System.Drawing.FontStyle.Bold);
             this.btnCapNhap.ForeColor = System.Drawing.Color.White;
             this.btnCapNhap.Location = new System.Drawing.Point(214, 314);
             this.btnCapNhap.Name = "btnCapNhap";

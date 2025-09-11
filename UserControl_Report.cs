@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Drawing;
 using System.Windows.Forms;
+using Guna.UI2.WinForms;
 
 namespace QLTB
 {
@@ -27,6 +29,10 @@ namespace QLTB
             lblCountCanBaoTri.Text = GetCountCanBaoTri().ToString(); ;
             lblTongChiPhi.Text = GetTongChiPhiThietBi("TB01").ToString(); ;
             lblAvgChiPhi.Text = GetAvgChiPhiBaoTri("TB01").ToString();
+            ApplyCustomTheme(dgvCanBaoTri);
+            ApplyCustomTheme(dgvTongChiPhi);
+            ApplyCustomTheme(dgvTopChiPhi);
+
         }
 
         private void LoadCanBaoTri()
@@ -139,9 +145,45 @@ namespace QLTB
                 double tong = GetTongChiPhiThietBi(maTB);
                 double avg = GetAvgChiPhiBaoTri(maTB);
 
-                lblTongChiPhi.Text = $"{maTB}: {tong:#,##0.##}";
-                lblAvgChiPhi.Text = $"{maTB}: {avg:#,##0.##}";
+                lblTongChiPhi.Text = $"{tong:#,##0.##}";
+                lblAvgChiPhi.Text = $"{avg:#,##0.##}";
             }
+        }
+        private void ApplyCustomTheme(Guna2DataGridView dgv)
+        {
+            // Theme chung
+            dgv.Theme = Guna.UI2.WinForms.Enums.DataGridViewPresetThemes.Default;
+            dgv.EnableHeadersVisualStyles = false;
+
+            // Header
+            dgv.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(102, 126, 234);   // xanh tím nhạt
+            dgv.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgv.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            dgv.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dgv.ColumnHeadersHeight = 40;
+
+            // Dòng bình thường
+            dgv.DefaultCellStyle.BackColor = Color.White;
+            dgv.DefaultCellStyle.ForeColor = Color.Black;
+            dgv.DefaultCellStyle.Font = new Font("Segoe UI", 10);
+            dgv.DefaultCellStyle.SelectionBackColor = Color.FromArgb(186, 104, 200); // tím nhạt khi chọn
+            dgv.DefaultCellStyle.SelectionForeColor = Color.White;
+            dgv.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+
+            // Dòng xen kẽ
+            dgv.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 245, 250); // xám rất nhạt
+
+            // DGV chung
+            dgv.BackgroundColor = Color.White;
+            dgv.BorderStyle = BorderStyle.None;
+            dgv.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+            dgv.RowTemplate.Height = 35;
+
+            dgv.ReadOnly = true;
+            dgv.AllowUserToAddRows = false;
+            dgv.AllowUserToResizeRows = false;
+            dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         }
     }
 }
