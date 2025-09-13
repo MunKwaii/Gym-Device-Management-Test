@@ -39,13 +39,16 @@ namespace QLTB
         {
             using (SqlConnection conn = new SqlConnection(connStr))
             {
-                string sql = "SELECT * FROM dbo.fn_GetCanBaoTri()";
+                //string sql = "SELECT * FROM dbo.fn_GetCanBaoTri()";
+                string sql = "SELECT * FROM dbo.v_GetCanBaoTri";
                 SqlDataAdapter da = new SqlDataAdapter(sql, conn);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
                 dgvCanBaoTri.DataSource = dt;
             }
         }
+
+
 
         private void LoadTongChiPhi()
         {

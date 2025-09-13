@@ -56,12 +56,14 @@ namespace QLTB
             using (SqlConnection conn = new SqlConnection("Data Source=.;Initial Catalog=QLGYM;Persist Security Info=True;User ID=sa;Password=1234;TrustServerCertificate=True"))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand("sp_GetThietBi", conn);
-                cmd.CommandType = CommandType.StoredProcedure;
 
-                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                // Gọi trực tiếp view thay vì procedure
+                string sql = "SELECT * FROM v_ThietBi";
+                SqlDataAdapter da = new SqlDataAdapter(sql, conn);
+
                 DataTable dt = new DataTable();
                 da.Fill(dt);
+
                 dgvThietBi.DataSource = dt; // dgvThietBi = DataGridView
             }
         }
