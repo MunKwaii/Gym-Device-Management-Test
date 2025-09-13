@@ -169,15 +169,29 @@ BEGIN
 END
 GO
 
--- Xóa thiết bị
-CREATE PROCEDURE sp_XoaThietBi
+-- Xóa thiết bị có transaction
+CREATE OR ALTER PROCEDURE sp_XoaThietBi
     @MaTB VARCHAR(10)
 AS
 BEGIN
-    DELETE FROM ThietBi WHERE MaTB=@MaTB;
+    BEGIN TRY
+        BEGIN TRANSACTION;   -- bắt đầu giao dịch
+
+        -- Xoá log bảo trì liên quan trước (nếu có ràng buộc khoá ngoại)
+        DELETE FROM BaoTri WHERE MaTB = @MaTB;
+
+        -- Xoá thiết bị
+        DELETE FROM ThietBi WHERE MaTB = @MaTB;
+
+        COMMIT TRANSACTION;  -- thành công thì lưu lại
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION; -- lỗi thì huỷ tất cả
+        -- ném lỗi ra ngoài để biết nguyên nhân
+        THROW;
+    END CATCH
 END
 GO
-
 -- Lấy danh sách thiết bị
 CREATE PROCEDURE sp_GetThietBi
 AS
@@ -185,14 +199,6 @@ BEGIN
     SELECT * FROM ThietBi;
 END
 GO
-
-INSERT INTO LoaiThietBi (MaLoai, TenLoai) VALUES
-('ML01', N'Máy chạy bộ'),
-('ML02', N'Xe đạp tập'),
-('ML03', N'Dàn tạ đa năng');
-
-SELECT * FROM dbo.LoaiThietBi;
-
 ALTER PROCEDURE sp_GetThietBi
 AS
 BEGIN
@@ -207,6 +213,28 @@ BEGIN
     LEFT JOIN dbo.LoaiThietBi lt ON tb.MaLoai = lt.MaLoai;
 END
 
+--View
+CREATE VIEW v_ThietBi
+AS
+SELECT tb.MaTB,
+       tb.TenTB,
+       tb.MaLoai,
+       lt.TenLoai,
+       tb.NgayNhap,
+       tb.TinhTrang,
+       tb.ViTri
+FROM ThietBi tb
+LEFT JOIN LoaiThietBi lt ON tb.MaLoai = lt.MaLoai;
+
+
+INSERT INTO LoaiThietBi (MaLoai, TenLoai) VALUES
+('ML01', N'Máy chạy bộ'),
+('ML02', N'Xe đạp tập'),
+('ML03', N'Dàn tạ đa năng');
+
+SELECT * FROM dbo.LoaiThietBi;
+
+
 
 CREATE PROCEDURE sp_UpdateTinhTrang
     @MaTB VARCHAR(10),
@@ -219,39 +247,31 @@ BEGIN
 END
 GO
 
-
-CREATE PROCEDURE sp_ThemBaoTri
+CREATE OR ALTER PROCEDURE sp_ThemBaoTri
     @MaTB VARCHAR(10),
-    @MaNV VARCHAR(10) = NULL,                -- Nếu cần liên kết nhân viên thực hiện
+    @MaNV VARCHAR(10) = NULL,
     @NgayBaoTri DATE,
     @MoTa NVARCHAR(200),
     @ChiPhi FLOAT,
     @KetQua NVARCHAR(50)
 AS
 BEGIN
-    -- Thêm log bảo trì vào bảng BaoTri
-    INSERT INTO BaoTri(MaTB, MaNV, NgayBaoTri, MoTa, ChiPhi, KetQua)
-    VALUES(@MaTB, @MaNV, @NgayBaoTri, @MoTa, @ChiPhi, @KetQua);
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        INSERT INTO BaoTri(MaTB, MaNV, NgayBaoTri, MoTa, ChiPhi, KetQua)
+        VALUES(@MaTB, @MaNV, @NgayBaoTri, @MoTa, @ChiPhi, @KetQua);
+
+        -- Trigger sẽ tự động update TinhTrang bên ThietBi
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW; -- trả lỗi ra ngoài
+    END CATCH
 END
 GO
 
-CREATE TRIGGER trg_UpdateTinhTrang
-ON BaoTri
-AFTER INSERT
-AS
-BEGIN
-    DECLARE @MaTB VARCHAR(10), @KetQua NVARCHAR(50);
-
-    -- Lấy dữ liệu từ bảng inserted (dòng mới thêm vào)
-    SELECT @MaTB = MaTB, @KetQua = KetQua FROM inserted;
-
-    -- Kiểm tra kết quả bảo trì và cập nhật trạng thái thiết bị
-    IF @KetQua = N'Sửa xong'
-        UPDATE ThietBi SET TinhTrang = N'Đang sử dụng' WHERE MaTB = @MaTB;
-    ELSE IF @KetQua = N'Hỏng' OR @KetQua = N'Không sửa được'
-        UPDATE ThietBi SET TinhTrang = N'Hỏng' WHERE MaTB = @MaTB;
-END
-GO
 
 CREATE PROCEDURE sp_GetBaoTriByMaTB
     @MaTB VARCHAR(10)
@@ -302,40 +322,74 @@ BEGIN
 END
 GO
 
--- Thiết bị cần bảo trì
-CREATE PROCEDURE sp_ReportCanBaoTri
+DROP TRIGGER dbo.trg_TotalChiPhi;
+CREATE TRIGGER trg_TotalChiPhi
+ON BaoTri
+AFTER INSERT
 AS
 BEGIN
-    SELECT MaTB, TenTB, TinhTrang, ViTri
-    FROM ThietBi
-    WHERE TinhTrang = N'Cần bảo trì';
+    DECLARE @MaTB VARCHAR(10);
+
+    -- Duyệt qua tất cả thiết bị vừa insert log bảo trì
+    DECLARE cur CURSOR FOR
+        SELECT DISTINCT MaTB FROM inserted;
+
+    OPEN cur;
+    FETCH NEXT FROM cur INTO @MaTB;
+
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        DECLARE @Tong FLOAT;
+        SELECT @Tong = SUM(ChiPhi) FROM BaoTri WHERE MaTB = @MaTB;
+
+        IF @Tong > 5000000
+        BEGIN
+            UPDATE ThietBi SET TinhTrang = N'Hỏng'
+            WHERE MaTB = @MaTB;
+
+            UPDATE BaoTri SET KetQua = N'Hỏng'
+            WHERE MaTB = @MaTB AND MaBT IN (SELECT MaBT FROM inserted);
+        END
+
+        FETCH NEXT FROM cur INTO @MaTB;
+    END
+
+    CLOSE cur;
+    DEALLOCATE cur;
 END
 GO
 
--- Tổng chi phí bảo trì theo tháng
-CREATE PROCEDURE sp_ReportTongChiPhi
+
+CREATE OR ALTER TRIGGER trg_TotalChiPhi
+ON BaoTri
+AFTER INSERT
 AS
 BEGIN
-    SELECT YEAR(NgayBaoTri) AS Nam,
-           MONTH(NgayBaoTri) AS Thang,
-           SUM(ChiPhi) AS TongChiPhi
+    DECLARE @TongChiPhi TABLE (MaTB VARCHAR(10));
+
+    INSERT INTO @TongChiPhi(MaTB)
+    SELECT MaTB
     FROM BaoTri
-    GROUP BY YEAR(NgayBaoTri), MONTH(NgayBaoTri)
-    ORDER BY Nam DESC, Thang DESC;
-END
-GO
+    GROUP BY MaTB
+    HAVING SUM(ChiPhi) > 5000000;
 
--- Top thiết bị tốn nhiều chi phí nhất
-CREATE PROCEDURE sp_ReportTopChiPhi
-AS
-BEGIN
-    SELECT TOP 5 bt.MaTB, tb.TenTB, SUM(bt.ChiPhi) AS TongChiPhi
+    -- Update thiết bị
+    UPDATE tb
+    SET tb.TinhTrang = N'Hỏng'
+    FROM ThietBi tb
+    INNER JOIN @TongChiPhi t ON tb.MaTB = t.MaTB;
+
+    -- Update log mới
+    UPDATE bt
+    SET bt.KetQua = N'Hỏng'
     FROM BaoTri bt
-    INNER JOIN ThietBi tb ON bt.MaTB = tb.MaTB
-    GROUP BY bt.MaTB, tb.TenTB
-    ORDER BY TongChiPhi DESC;
+    INNER JOIN inserted i ON bt.MaBT = i.MaBT
+    INNER JOIN @TongChiPhi t ON i.MaTB = t.MaTB;
 END
-GO
+
+
+
+
 
 
 
@@ -441,43 +495,8 @@ INSERT INTO BaoTri (MaTB, MaNV, NgayBaoTri, MoTa, ChiPhi, KetQua)
 VALUES
 ('TB07', 'NV04', '2024-05-20', N'Bảo dưỡng hệ thống bàn đạp', 1800000, N'Không sửa được'),
 ('TB07', 'NV04', '2024-07-28', N'Thay ốc vít, căn chỉnh nhưng chưa hoạt động ổn định', 800000, N'Không sửa được');
-
-
-CREATE TRIGGER trg_TotalChiPhi
-ON BaoTri
-AFTER INSERT
-AS
-BEGIN
-    DECLARE @MaTB VARCHAR(10);
-
-    -- Duyệt qua tất cả thiết bị vừa insert log bảo trì
-    DECLARE cur CURSOR FOR
-        SELECT DISTINCT MaTB FROM inserted;
-
-    OPEN cur;
-    FETCH NEXT FROM cur INTO @MaTB;
-
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        DECLARE @Tong FLOAT;
-        SELECT @Tong = SUM(ChiPhi) FROM BaoTri WHERE MaTB = @MaTB;
-
-        IF @Tong > 5000000
-        BEGIN
-            UPDATE ThietBi SET TinhTrang = N'Hỏng'
-            WHERE MaTB = @MaTB;
-
-            UPDATE BaoTri SET KetQua = N'Hỏng'
-            WHERE MaTB = @MaTB AND MaBT IN (SELECT MaBT FROM inserted);
-        END
-
-        FETCH NEXT FROM cur INTO @MaTB;
-    END
-
-    CLOSE cur;
-    DEALLOCATE cur;
-END
 GO
+
 
 
 CREATE FUNCTION fn_GetCanBaoTri()
@@ -490,7 +509,12 @@ RETURN
     WHERE TinhTrang = N'Cần bảo trì'
 );
 GO
-
+--view
+CREATE VIEW v_GetCanBaoTri
+AS
+SELECT MaTB, TenTB, TinhTrang, ViTri
+FROM ThietBi
+WHERE TinhTrang = N'Cần bảo trì';
 
 
 CREATE FUNCTION fn_ReportTongChiPhi()
@@ -532,3 +556,4 @@ BEGIN
 
     RETURN;
 END
+
