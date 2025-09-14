@@ -304,6 +304,7 @@
             // 
             // btnReloadTongChiPhi
             // 
+            this.btnReloadTongChiPhi.BorderRadius = 20;
             this.btnReloadTongChiPhi.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
             this.btnReloadTongChiPhi.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
             this.btnReloadTongChiPhi.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
@@ -320,6 +321,7 @@
             // 
             // btnExportTongChiPhi
             // 
+            this.btnExportTongChiPhi.BorderRadius = 20;
             this.btnExportTongChiPhi.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
             this.btnExportTongChiPhi.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
             this.btnExportTongChiPhi.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
@@ -399,6 +401,7 @@
             // 
             // btnReloadTopChiPhi
             // 
+            this.btnReloadTopChiPhi.BorderRadius = 20;
             this.btnReloadTopChiPhi.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
             this.btnReloadTopChiPhi.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
             this.btnReloadTopChiPhi.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
@@ -415,6 +418,7 @@
             // 
             // btnExportTopChiPhi
             // 
+            this.btnExportTopChiPhi.BorderRadius = 20;
             this.btnExportTopChiPhi.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
             this.btnExportTopChiPhi.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
             this.btnExportTopChiPhi.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
