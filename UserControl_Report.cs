@@ -9,7 +9,6 @@ namespace QLTB
 {
     public partial class UserControl_Report : UserControl
     {
-        private string connStr = "Data Source=.;Initial Catalog=QLGYM;User ID=sa;Password=1234;TrustServerCertificate=True";
 
         public UserControl_Report()
         {
@@ -37,7 +36,7 @@ namespace QLTB
 
         private void LoadCanBaoTri()
         {
-            using (SqlConnection conn = new SqlConnection(connStr))
+            using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
             {
                 //string sql = "SELECT * FROM dbo.fn_GetCanBaoTri()";
                 string sql = "SELECT * FROM dbo.v_GetCanBaoTri";
@@ -52,7 +51,7 @@ namespace QLTB
 
         private void LoadTongChiPhi()
         {
-            using (SqlConnection conn = new SqlConnection(connStr))
+            using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
             {
                 string sql = "SELECT * FROM dbo.fn_ReportTongChiPhi()";
                 SqlDataAdapter da = new SqlDataAdapter(sql, conn);
@@ -64,7 +63,7 @@ namespace QLTB
 
         private void LoadTopChiPhi()
         {
-            using (SqlConnection conn = new SqlConnection(connStr))
+            using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
             {
                 string sql = "SELECT * FROM dbo.fn_ReportTopChiPhi_Multi() ORDER BY TongChiPhi DESC";
                 SqlDataAdapter da = new SqlDataAdapter(sql, conn);
@@ -92,7 +91,7 @@ namespace QLTB
         private double GetTongChiPhiThietBi(string maTB)
         {
             double result = 0;
-            using (SqlConnection conn = new SqlConnection(connStr))
+            using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
             {
                 conn.Open();
                 string sql = "SELECT dbo.fn_TongChiPhiThietBi(@MaTB)";
@@ -109,7 +108,7 @@ namespace QLTB
         private double GetAvgChiPhiBaoTri(string maTB)
         {
             double result = 0;
-            using (SqlConnection conn = new SqlConnection(connStr))
+            using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
             {
                 conn.Open();
                 string sql = "SELECT dbo.fn_AvgChiPhiBaoTri(@MaTB)";
@@ -126,7 +125,7 @@ namespace QLTB
         private int GetCountCanBaoTri()
         {
             int result = 0;
-            using (SqlConnection conn = new SqlConnection(connStr))
+            using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
             {
                 conn.Open();
                 string sql = "SELECT dbo.fn_CountCanBaoTri()";
@@ -187,6 +186,81 @@ namespace QLTB
             dgv.AllowUserToResizeRows = false;
             dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        }
+
+        private void tabControlReport_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dgvCanBaoTri_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void btnExportCanBaoTri_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lblAvgChiPhi_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lblTongChiPhi_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lblCountCanBaoTri_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tabTongChiPhi_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dgvTongChiPhi_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void btnExportTongChiPhi_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tabTopChiPhi_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dgvTopChiPhi_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void btnExportTopChiPhi_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

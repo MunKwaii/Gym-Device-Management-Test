@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DBMS_Project;
 
 namespace QLTB
 {
@@ -16,7 +17,7 @@ namespace QLTB
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form_ThietBiList());
+            Application.Run(new Form_Login());
         }
     }
 }

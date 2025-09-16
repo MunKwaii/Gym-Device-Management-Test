@@ -2,52 +2,6 @@
 CREATE DATABASE QLGYM
 USE GLGYM
 
---2. Tạo bảng CongViec
-CREATE TABLE CongViec (
-	MaCV VARCHAR(10) PRIMARY KEY,
-	TenCV NVARCHAR(50),
-	LuongCa FLOAT
-)
-
---3. Tạo bảng NhanVien
-CREATE TABLE NhanVien (
-	MaNV VARCHAR(10) PRIMARY KEY,
-	HoTen NVARCHAR(50),
-	NgaySinh DATE,
-	SoDienThoai VARCHAR(20),
-	DiaChi NVARCHAR(200),
-	GioiTinh NVARCHAR(10),
-	MaCV VARCHAR(10),
-	CONSTRAINT fk_NhanVien_CongViec FOREIGN KEY (MaCV) REFERENCES CongViec(MaCV)
-)
-
---4. Tạo bảng CaLam
-CREATE TABLE CaLamViec (
-	MaCa VARCHAR(10) PRIMARY KEY,
-	TenCa NVARCHAR(50)
-)
-
---5. Tạo bảng LichLamViec
-CREATE TABLE LichLamViec (
-	MaNV VARCHAR(10),
-	MaCa VARCHAR(10),
-	Ngay NVARCHAR(20)
-	PRIMARY KEY (MaNV, MaCa),
-	CONSTRAINT fk_LichLamViec_NhanVien FOREIGN KEY (MaNV) REFERENCES NhanVien(MaNV),
-	CONSTRAINT fk_LichLamViec_CaLamViec FOREIGN KEY (MaCa) REFERENCES CaLamViec(MaCa)
-)
-
---6. Tạo bảng NghiPhep
-CREATE TABLE NghiPhep (
-	MaNVNghi VARCHAR(10),
-	MaNVBu VARCHAR(10),
-	MaCa VARCHAR(10),
-	NgayNghi DATETIME,
-	PRIMARY KEY (MaNVNghi, MaNVBu, MaCa),
-	CONSTRAINT fk_NghiPhepNVNghi_NhanVien FOREIGN KEY (MaNVNghi) REFERENCES NhanVien(MaNV),
-	CONSTRAINT fk_NghiPhepNVBu_NhanVien FOREIGN KEY (MaNVBu) REFERENCES NhanVien(MaNV),
-	CONSTRAINT fk_NghiPhep_CaLamViec FOREIGN KEY (MaCa) REFERENCES CaLamViec(MaCa)
-)
 
 ---Khu thiết bị 
 
@@ -80,42 +34,80 @@ CREATE TABLE BaoTri (
     -- Nếu muốn liên kết nhân viên thì giữ dòng này:
     ,CONSTRAINT fk_BaoTri_NhanVien FOREIGN KEY (MaNV) REFERENCES NhanVien(MaNV)
 );
---9. Tạo bảng KhachHang
-CREATE TABLE KhachHang (
-	MaKH VARCHAR(10) PRIMARY KEY,
-	HoTen NVARCHAR(50),
-	SoDienThoai VARCHAR(20)
-)
 
---10. Tạo bảng HoiVien
-CREATE TABLE HoiVien (
-	MaHV VARCHAR(10) PRIMARY KEY,
-	MaKH VARCHAR(10),
-	NgayBatDau DATE,
-	NgayKetThuc DATE,
-	CONSTRAINT fk_HoiVien_KhachHang FOREIGN KEY (MaKH) REFERENCES KhachHang(MaKH)
-)
 
---11. Tạo bảng DichVuPT
-CREATE TABLE DichVuPT (
-	MaDV VARCHAR(10) PRIMARY KEY,
-	TenDV NVARCHAR(100), 
-	MaNV VARCHAR(10),
-	DonGia FLOAT,
-	SoBuoi INT,
-	CONSTRAINT fk_DichVuPT_NhanVien FOREIGN KEY (MaNV) REFERENCES NhanVien(MaNV)
-)
+CREATE TABLE VeSinhLog (
+    MaVS INT IDENTITY PRIMARY KEY,
+    MaTB VARCHAR(10) REFERENCES ThietBi(MaTB),
+    MaNV VARCHAR(10) NULL,
+    NgayVeSinh DATE NOT NULL,
+    GhiChu NVARCHAR(200)
+);
+GO
 
---12. Tạo bảng LichTap
-CREATE TABLE LichTap (
-	MaKH VARCHAR(10) PRIMARY KEY,
-	MaDV VARCHAR(10),
-	NgayTap DATE,
-	GioBatDau TIME,
-	GioKetThuc TIME,
-	CONSTRAINT fk_LichTap_KhachHang FOREIGN KEY (MaKH) REFERENCES KhachHang(MaKH),
-	CONSTRAINT fk_LichTap_MaDV FOREIGN KEY (MaDV) REFERENCES DichVuPT(MaDV)
-)
+CREATE VIEW v_VeSinhTheoThang
+AS
+SELECT YEAR(NgayVeSinh) AS Nam, MONTH(NgayVeSinh) AS Thang, COUNT(*) AS SoLan
+FROM VeSinhLog
+GROUP BY YEAR(NgayVeSinh), MONTH(NgayVeSinh);
+GO
+
+CREATE OR ALTER VIEW v_ThietBi_VeSinh
+AS
+SELECT 
+    tb.MaTB,
+    tb.TenTB,
+    tb.TinhTrangVeSinh,
+    vs.NgayVeSinh
+FROM ThietBi tb
+OUTER APPLY
+(
+    SELECT TOP 1 v.NgayVeSinh
+    FROM VeSinhLog v
+    WHERE v.MaTB = tb.MaTB
+    ORDER BY v.NgayVeSinh DESC
+) vs;
+GO
+
+CREATE OR ALTER PROCEDURE sp_CapNhatVeSinh
+    @MaTB VARCHAR(10),
+    @TinhTrang NVARCHAR(20),
+    @NgayVeSinh DATE
+AS
+BEGIN
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        -- Cập nhật tình trạng trong ThietBi
+        UPDATE ThietBi
+        SET TinhTrangVeSinh = @TinhTrang
+        WHERE MaTB = @MaTB;
+
+        -- Ghi log vào VeSinhLog
+        INSERT INTO VeSinhLog(MaTB, NgayVeSinh)
+        VALUES(@MaTB, @NgayVeSinh);
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END
+
+CREATE TRIGGER trg_UpdateVeSinh ON v_ThietBi_VeSinh
+INSTEAD OF UPDATE
+AS
+BEGIN
+    UPDATE ThietBi
+    SET TinhTrangVeSinh = i.TinhTrangVeSinh
+    FROM ThietBi tb
+    INNER JOIN inserted i ON tb.MaTB = i.MaTB;
+END
+GO
+
+
+
+
 
 --13. Thêm công việc
 INSERT INTO CongViec (MaCV, TenCV, LuongCa)
@@ -212,6 +204,10 @@ BEGIN
     FROM dbo.ThietBi tb
     LEFT JOIN dbo.LoaiThietBi lt ON tb.MaLoai = lt.MaLoai;
 END
+
+
+
+
 
 --View
 CREATE VIEW v_ThietBi
@@ -557,3 +553,89 @@ BEGIN
     RETURN;
 END
 
+--9. Tạo bảng Account
+CREATE TABLE Account(
+	MaNV VARCHAR(10) PRIMARY KEY REFERENCES dbo.NhanVien(MaNV),
+	Password VARCHAR(Max) NOT NULL
+)
+--Thêm tài khoản
+INSERT INTO Account(MaNV, Password)
+VALUES
+('NV01', '123'),
+('NV02', '123'),
+('NV03', '123'),
+('NV04', '123'),
+('NV05', '123'),
+('NV06', '123'),
+('NV07', '123');
+
+-- Tạo login (cấp server-level login)
+CREATE LOGIN adminUser WITH PASSWORD = '123';
+CREATE LOGIN baotriUser WITH PASSWORD = '123';
+CREATE LOGIN vesinhUser WITH PASSWORD = '123';
+
+-- Gắn login này vào database QLGYM
+USE QLGYM;
+CREATE USER adminUser FOR LOGIN adminUser;
+CREATE USER baotriUser FOR LOGIN baotriUser;
+CREATE USER vesinhUser FOR LOGIN vesinhUser;
+
+
+-- Tạo role
+CREATE ROLE Role_Admin;
+CREATE ROLE Role_BaoTri;
+CREATE ROLE Role_VeSinh;
+
+-- Cấp quyền cho role
+-- Admin full quyền
+GRANT SELECT, INSERT, UPDATE, DELETE ON ThietBi TO Role_Admin;
+GRANT SELECT, INSERT, UPDATE, DELETE ON BaoTri TO Role_Admin;
+
+-- Bảo trì: chỉ xem thiết bị + thêm log bảo trì
+GRANT SELECT ON ThietBi TO Role_BaoTri;
+GRANT SELECT, INSERT ON BaoTri TO Role_BaoTri;
+
+-- Vệ sinh: chỉ được xem thiết bị
+GRANT SELECT ON ThietBi TO Role_VeSinh;
+
+-- Gán user vào role
+EXEC sp_addrolemember 'Role_Admin', 'adminUser';
+EXEC sp_addrolemember 'Role_BaoTri', 'baotriUser';
+EXEC sp_addrolemember 'Role_VeSinh', 'vesinhUser';
+
+-- Admin full
+GRANT SELECT, INSERT, UPDATE, DELETE ON LoaiThietBi TO Role_Admin;
+
+-- Bảo trì: chỉ cần SELECT loại thiết bị (để hiển thị combobox)
+GRANT SELECT ON LoaiThietBi TO Role_BaoTri;
+
+-- Vệ sinh: cũng chỉ cần SELECT để hiển thị
+GRANT SELECT ON LoaiThietBi TO Role_VeSinh;
+
+-- Nếu có view v_ThietBi thì cũng cần cấp
+GRANT SELECT ON v_ThietBi TO Role_BaoTri;
+GRANT SELECT ON v_ThietBi TO Role_VeSinh; 
+
+-- ========== PROCEDURE ==========
+GRANT EXECUTE ON OBJECT::dbo.sp_ThemThietBi TO Role_Admin;
+GRANT EXECUTE ON OBJECT::dbo.sp_SuaThietBi TO Role_Admin;
+GRANT EXECUTE ON OBJECT::dbo.sp_XoaThietBi TO Role_Admin;
+GRANT EXECUTE ON OBJECT::dbo.sp_GetThietBi TO Role_Admin;
+GRANT EXECUTE ON OBJECT::dbo.sp_UpdateTinhTrang TO Role_Admin;
+GRANT EXECUTE ON OBJECT::dbo.sp_ThemBaoTri TO Role_Admin;
+GRANT EXECUTE ON OBJECT::dbo.sp_GetBaoTriByMaTB TO Role_Admin;
+
+-- ========== VIEW ==========
+GRANT SELECT ON OBJECT::dbo.v_ThietBi TO Role_Admin;
+GRANT SELECT ON OBJECT::dbo.v_GetCanBaoTri TO Role_Admin;
+
+-- ========== FUNCTION ==========
+-- Table-valued function (SELECT)
+GRANT SELECT ON OBJECT::dbo.fn_GetCanBaoTri TO Role_Admin;
+GRANT SELECT ON OBJECT::dbo.fn_ReportTongChiPhi TO Role_Admin;
+GRANT SELECT ON OBJECT::dbo.fn_ReportTopChiPhi_Multi TO Role_Admin;
+
+-- Scalar function (EXECUTE)
+GRANT EXECUTE ON OBJECT::dbo.fn_TongChiPhiThietBi TO Role_Admin;
+GRANT EXECUTE ON OBJECT::dbo.fn_AvgChiPhiBaoTri TO Role_Admin;
+GRANT EXECUTE ON OBJECT::dbo.fn_CountCanBaoTri TO Role_Admin;

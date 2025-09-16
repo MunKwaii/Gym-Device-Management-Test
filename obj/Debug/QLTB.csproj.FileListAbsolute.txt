@@ -13,3 +13,7 @@ D:\KT\QLTB\obj\Debug\QLTB.Form_BaoTriLog.resources
 D:\KT\QLTB\bin\Debug\Guna.UI2.dll
 D:\KT\QLTB\obj\Debug\QLTB.csproj.Up2Date
 D:\KT\QLTB\obj\Debug\QLTB.UserControl_Report.resources
+D:\KT\QLTB\bin\Debug\Guna.Charts.WinForms.dll
+D:\KT\QLTB\bin\Debug\Guna.Charts.WinForms.xml
+D:\KT\QLTB\obj\Debug\QLTB.UserControl_VeSinh.resources
+D:\KT\QLTB\obj\Debug\DBMS_Project.Form_Login.resources

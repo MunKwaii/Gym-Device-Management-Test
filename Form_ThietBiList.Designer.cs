@@ -53,6 +53,7 @@
             this.btnThem = new Guna.UI2.WinForms.Guna2GradientButton();
             this.dgvThietBi = new Guna.UI2.WinForms.Guna2DataGridView();
             this.tabReport = new System.Windows.Forms.TabPage();
+            this.tabVeSinh = new System.Windows.Forms.TabPage();
             this.guna2TabControl1.SuspendLayout();
             this.tabThietBiList.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvThietBi)).BeginInit();
@@ -123,6 +124,7 @@
             this.guna2TabControl1.Alignment = System.Windows.Forms.TabAlignment.Left;
             this.guna2TabControl1.Controls.Add(this.tabThietBiList);
             this.guna2TabControl1.Controls.Add(this.tabReport);
+            this.guna2TabControl1.Controls.Add(this.tabVeSinh);
             this.guna2TabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.guna2TabControl1.ItemSize = new System.Drawing.Size(180, 40);
             this.guna2TabControl1.Location = new System.Drawing.Point(0, 0);
@@ -448,6 +450,15 @@
             this.tabReport.UseVisualStyleBackColor = true;
             this.tabReport.Click += new System.EventHandler(this.tabReport_Click);
             // 
+            // tabVeSinh
+            // 
+            this.tabVeSinh.Location = new System.Drawing.Point(184, 4);
+            this.tabVeSinh.Name = "tabVeSinh";
+            this.tabVeSinh.Size = new System.Drawing.Size(880, 588);
+            this.tabVeSinh.TabIndex = 2;
+            this.tabVeSinh.Text = "Vệ sinh";
+            this.tabVeSinh.UseVisualStyleBackColor = true;
+            // 
             // Form_ThietBiList
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -490,6 +501,7 @@
         private Guna.UI2.WinForms.Guna2ComboBox cboLoaiTB;
         private Guna.UI2.WinForms.Guna2DateTimePicker dtNgayNhap;
         private Guna.UI2.WinForms.Guna2GradientButton btnDong;
+        private System.Windows.Forms.TabPage tabVeSinh;
     }
 }
 

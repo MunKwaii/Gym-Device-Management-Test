@@ -33,6 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Guna.Charts.WinForms, Version=1.1.0.0, Culture=neutral, PublicKeyToken=8b9d14aa5142e261, processorArchitecture=MSIL">
+      <HintPath>packages\Guna.Charts.WinForms.1.1.0\lib\net472\Guna.Charts.WinForms.dll</HintPath>
+    </Reference>
     <Reference Include="Guna.UI2, Version=2.0.4.7, Culture=neutral, PublicKeyToken=8b9d14aa5142e261, processorArchitecture=MSIL">
       <HintPath>packages\Guna.UI2.WinForms.2.0.4.7\lib\net472\Guna.UI2.dll</HintPath>
     </Reference>
@@ -41,6 +44,7 @@
     <Reference Include="System.Design" />
     <Reference Include="System.Management" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -52,7 +56,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DatabaseHelper.cs" />
+    <Compile Include="DatabaseConfig.cs" />
+    <Compile Include="Form_Login.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form_Login.Designer.cs">
+      <DependentUpon>Form_Login.cs</DependentUpon>
+    </Compile>
     <Compile Include="Form_UpdateStatus.cs.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -79,6 +89,15 @@
     <Compile Include="UserControl_Report.Designer.cs">
       <DependentUpon>UserControl_Report.cs</DependentUpon>
     </Compile>
+    <Compile Include="UserControl_VeSinh.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControl_VeSinh.Designer.cs">
+      <DependentUpon>UserControl_VeSinh.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Form_Login.resx">
+      <DependentUpon>Form_Login.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Form_BaoTriLog.resx">
       <DependentUpon>Form_BaoTriLog.cs</DependentUpon>
     </EmbeddedResource>
@@ -99,6 +118,9 @@
     </Compile>
     <EmbeddedResource Include="UserControl_Report.resx">
       <DependentUpon>UserControl_Report.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserControl_VeSinh.resx">
+      <DependentUpon>UserControl_VeSinh.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">

@@ -77,6 +77,7 @@
             this.tabControlReport.SelectedIndex = 0;
             this.tabControlReport.Size = new System.Drawing.Size(880, 588);
             this.tabControlReport.TabIndex = 1;
+            this.tabControlReport.SelectedIndexChanged += new System.EventHandler(this.tabControlReport_SelectedIndexChanged);
             // 
             // tabCanBaoTri
             // 
@@ -149,6 +150,7 @@
             this.dgvCanBaoTri.ThemeStyle.RowsStyle.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(231)))), ((int)(((byte)(229)))), ((int)(((byte)(255)))));
             this.dgvCanBaoTri.ThemeStyle.RowsStyle.SelectionForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(69)))), ((int)(((byte)(94)))));
             this.dgvCanBaoTri.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvCanBaoTri_CellClick);
+            this.dgvCanBaoTri.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvCanBaoTri_CellContentClick);
             // 
             // btnReloadCanBaoTri
             // 
@@ -182,6 +184,7 @@
             this.btnExportCanBaoTri.Size = new System.Drawing.Size(124, 45);
             this.btnExportCanBaoTri.TabIndex = 14;
             this.btnExportCanBaoTri.Text = "Xuất Excel";
+            this.btnExportCanBaoTri.Click += new System.EventHandler(this.btnExportCanBaoTri_Click);
             // 
             // label3
             // 
@@ -191,6 +194,7 @@
             this.label3.Size = new System.Drawing.Size(121, 17);
             this.label3.TabIndex = 9;
             this.label3.Text = "Trung bình chi phí:";
+            this.label3.Click += new System.EventHandler(this.label3_Click);
             // 
             // lblAvgChiPhi
             // 
@@ -200,6 +204,7 @@
             this.lblAvgChiPhi.Size = new System.Drawing.Size(43, 17);
             this.lblAvgChiPhi.TabIndex = 9;
             this.lblAvgChiPhi.Text = "label3";
+            this.lblAvgChiPhi.Click += new System.EventHandler(this.lblAvgChiPhi_Click);
             // 
             // label2
             // 
@@ -209,6 +214,7 @@
             this.label2.Size = new System.Drawing.Size(86, 17);
             this.label2.TabIndex = 8;
             this.label2.Text = "Tổng chi phí:";
+            this.label2.Click += new System.EventHandler(this.label2_Click);
             // 
             // label1
             // 
@@ -218,6 +224,7 @@
             this.label1.Size = new System.Drawing.Size(78, 17);
             this.label1.TabIndex = 7;
             this.label1.Text = "Cần bảo trì:";
+            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // lblTongChiPhi
             // 
@@ -227,6 +234,7 @@
             this.lblTongChiPhi.Size = new System.Drawing.Size(43, 17);
             this.lblTongChiPhi.TabIndex = 8;
             this.lblTongChiPhi.Text = "label2";
+            this.lblTongChiPhi.Click += new System.EventHandler(this.lblTongChiPhi_Click);
             // 
             // lblCountCanBaoTri
             // 
@@ -236,6 +244,7 @@
             this.lblCountCanBaoTri.Size = new System.Drawing.Size(41, 17);
             this.lblCountCanBaoTri.TabIndex = 7;
             this.lblCountCanBaoTri.Text = "label1";
+            this.lblCountCanBaoTri.Click += new System.EventHandler(this.lblCountCanBaoTri_Click);
             // 
             // tabTongChiPhi
             // 
@@ -250,6 +259,7 @@
             this.tabTongChiPhi.TabIndex = 1;
             this.tabTongChiPhi.Text = "Tổng chi phí";
             this.tabTongChiPhi.UseVisualStyleBackColor = true;
+            this.tabTongChiPhi.Click += new System.EventHandler(this.tabTongChiPhi_Click);
             // 
             // dgvTongChiPhi
             // 
@@ -301,6 +311,7 @@
             this.dgvTongChiPhi.ThemeStyle.RowsStyle.Height = 22;
             this.dgvTongChiPhi.ThemeStyle.RowsStyle.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(231)))), ((int)(((byte)(229)))), ((int)(((byte)(255)))));
             this.dgvTongChiPhi.ThemeStyle.RowsStyle.SelectionForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(69)))), ((int)(((byte)(94)))));
+            this.dgvTongChiPhi.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvTongChiPhi_CellContentClick);
             // 
             // btnReloadTongChiPhi
             // 
@@ -334,6 +345,7 @@
             this.btnExportTongChiPhi.Size = new System.Drawing.Size(124, 45);
             this.btnExportTongChiPhi.TabIndex = 14;
             this.btnExportTongChiPhi.Text = "Xuất Excel";
+            this.btnExportTongChiPhi.Click += new System.EventHandler(this.btnExportTongChiPhi_Click);
             // 
             // tabTopChiPhi
             // 
@@ -347,6 +359,7 @@
             this.tabTopChiPhi.TabIndex = 2;
             this.tabTopChiPhi.Text = "Top chi phí";
             this.tabTopChiPhi.UseVisualStyleBackColor = true;
+            this.tabTopChiPhi.Click += new System.EventHandler(this.tabTopChiPhi_Click);
             // 
             // dgvTopChiPhi
             // 
@@ -398,6 +411,7 @@
             this.dgvTopChiPhi.ThemeStyle.RowsStyle.Height = 22;
             this.dgvTopChiPhi.ThemeStyle.RowsStyle.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(231)))), ((int)(((byte)(229)))), ((int)(((byte)(255)))));
             this.dgvTopChiPhi.ThemeStyle.RowsStyle.SelectionForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(69)))), ((int)(((byte)(94)))));
+            this.dgvTopChiPhi.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvTopChiPhi_CellContentClick);
             // 
             // btnReloadTopChiPhi
             // 
@@ -431,6 +445,7 @@
             this.btnExportTopChiPhi.Size = new System.Drawing.Size(124, 45);
             this.btnExportTopChiPhi.TabIndex = 12;
             this.btnExportTopChiPhi.Text = "Xuất Excel";
+            this.btnExportTopChiPhi.Click += new System.EventHandler(this.btnExportTopChiPhi_Click);
             // 
             // UserControl_Report
             // 

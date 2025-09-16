@@ -33,7 +33,7 @@ namespace QLTB
                 return;
             }
 
-            using (SqlConnection conn = new SqlConnection("Data Source=.;Initial Catalog=QLGYM;User ID=sa;Password=1234;TrustServerCertificate=True"))
+            using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
             {
                 conn.Open();
                 using (SqlCommand cmd = new SqlCommand("sp_UpdateTinhTrang", conn))
@@ -46,7 +46,7 @@ namespace QLTB
                     MessageBox.Show(rows > 0 ? "Cập nhật thành công!" : "Không tìm thấy thiết bị.");
                 }
             }
-            this.Close(); // đóng form sau khi cập nhật
+            this.Close(); 
         }
         private void Form_UpdateStatus_Load(object sender, EventArgs e)
         {

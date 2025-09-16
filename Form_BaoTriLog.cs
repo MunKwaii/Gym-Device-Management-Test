@@ -43,7 +43,7 @@ namespace QLTB
 
         private void btnLuu_Click(object sender, EventArgs e)
         {
-            using (SqlConnection conn = new SqlConnection("Data Source=.;Initial Catalog=QLGYM;User ID=sa;Password=1234;TrustServerCertificate=True"))
+            using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
             {
                 conn.Open();
                 using (SqlCommand cmd = new SqlCommand("sp_ThemBaoTri", conn))
@@ -64,7 +64,7 @@ namespace QLTB
 
         private void LoadBaoTriHistory()
         {
-            using (SqlConnection conn = new SqlConnection("Data Source=.;Initial Catalog=QLGYM;User ID=sa;Password=1234;TrustServerCertificate=True"))
+            using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
             {
                 conn.Open();
                 using (SqlCommand cmd = new SqlCommand("sp_GetBaoTriByMaTB", conn))
