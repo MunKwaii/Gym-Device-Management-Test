@@ -262,5 +262,30 @@ namespace QLTB
 
             guna2TabControl1.TabButtonSize = new Size(180, 50);
         }
+
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            string tuKhoa = txtSearch.Text.Trim(); 
+
+            using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand("sp_TimKiemThietBi", conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    if (string.IsNullOrEmpty(tuKhoa))
+                        cmd.Parameters.AddWithValue("@TuKhoa", DBNull.Value);
+                    else
+                        cmd.Parameters.AddWithValue("@TuKhoa", tuKhoa);
+
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+
+                    dgvThietBi.DataSource = dt;
+                }
+            }
+        }
     }
 }

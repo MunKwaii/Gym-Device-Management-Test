@@ -162,6 +162,30 @@ BEGIN
 END
 GO
 
+--Tim kiem
+CREATE OR ALTER PROCEDURE sp_TimKiemThietBi
+    @TuKhoa NVARCHAR(100) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT tb.MaTB,
+           tb.TenTB,
+           tb.MaLoai,
+           lt.TenLoai,
+           tb.NgayNhap,
+           tb.TinhTrang,
+           tb.ViTri
+    FROM ThietBi tb
+    LEFT JOIN LoaiThietBi lt ON tb.MaLoai = lt.MaLoai
+    WHERE @TuKhoa IS NULL 
+          OR tb.MaTB LIKE N'%' + @TuKhoa + N'%'
+          OR tb.TenTB LIKE N'%' + @TuKhoa + N'%'
+          OR lt.TenLoai LIKE N'%' + @TuKhoa + N'%'
+    ORDER BY tb.NgayNhap DESC;
+END
+GO
+
 -- Sửa thiết bị
 CREATE PROCEDURE sp_SuaThietBi
     @MaTB VARCHAR(10),
