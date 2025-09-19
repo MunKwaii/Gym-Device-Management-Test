@@ -1,7 +1,6 @@
 ﻿--1. Tạo database QLGYM
 CREATE DATABASE QLGYM
-USE GLGYM
-
+USE QLGYM
 
 ---Khu thiết bị 
 
@@ -19,29 +18,39 @@ CREATE TABLE ThietBi (
     TinhTrang NVARCHAR(20) NOT NULL
         CHECK (TinhTrang IN (N'Đang sử dụng', N'Cần bảo trì', N'Hỏng', N'Thanh lý')),
     ViTri NVARCHAR(100) NULL,
+    TinhTrangVeSinh NVARCHAR(20) NULL,   
     CONSTRAINT fk_ThietBi_Loai FOREIGN KEY (MaLoai) REFERENCES LoaiThietBi(MaLoai)
 );
---8. Tạo bảng BaoTri
+
+
+
+--8. Tạo bảng BaoTri (không có ON DELETE CASCADE)
 CREATE TABLE BaoTri (
     MaBT INT IDENTITY(1,1) PRIMARY KEY,
     MaTB VARCHAR(10) NOT NULL,
-    MaNV VARCHAR(10) NULL,                -- để liên kết sang nhân viên (
+    MaNV VARCHAR(10) NULL,                -- để liên kết sang nhân viên
     NgayBaoTri DATE NOT NULL,
     MoTa NVARCHAR(200) NULL,
     ChiPhi FLOAT CHECK (ChiPhi >= 0),
     KetQua NVARCHAR(50) NULL,             -- ví dụ: 'Sửa xong', 'Không sửa được', 'Hỏng'
-    CONSTRAINT fk_BaoTri_ThietBi FOREIGN KEY (MaTB) REFERENCES ThietBi(MaTB)
-    -- Nếu muốn liên kết nhân viên thì giữ dòng này:
-    ,CONSTRAINT fk_BaoTri_NhanVien FOREIGN KEY (MaNV) REFERENCES NhanVien(MaNV)
+
+    -- Khóa ngoại tới ThietBi (KHÔNG CASCADE)
+    CONSTRAINT fk_BaoTri_ThietBi FOREIGN KEY (MaTB) 
+        REFERENCES ThietBi(MaTB),
+
+    -- Khóa ngoại tới NhanVien (nếu bảng NhanVien tồn tại)
+    CONSTRAINT fk_BaoTri_NhanVien FOREIGN KEY (MaNV) 
+        REFERENCES NhanVien(MaNV)
 );
+GO
+
 
 
 CREATE TABLE VeSinhLog (
     MaVS INT IDENTITY PRIMARY KEY,
     MaTB VARCHAR(10) REFERENCES ThietBi(MaTB),
     MaNV VARCHAR(10) NULL,
-    NgayVeSinh DATE NOT NULL,
-    GhiChu NVARCHAR(200)
+    NgayVeSinh DATE NOT NULL
 );
 GO
 
@@ -51,6 +60,7 @@ SELECT YEAR(NgayVeSinh) AS Nam, MONTH(NgayVeSinh) AS Thang, COUNT(*) AS SoLan
 FROM VeSinhLog
 GROUP BY YEAR(NgayVeSinh), MONTH(NgayVeSinh);
 GO
+
 
 CREATE OR ALTER VIEW v_ThietBi_VeSinh
 AS
@@ -75,16 +85,13 @@ CREATE OR ALTER PROCEDURE sp_CapNhatVeSinh
     @NgayVeSinh DATE
 AS
 BEGIN
-    BEGIN TRANSACTION;
     BEGIN TRY
-        -- Cập nhật tình trạng trong ThietBi
+        BEGIN TRANSACTION;
+
+        -- chỉ update, KHÔNG chèn log nữa
         UPDATE ThietBi
         SET TinhTrangVeSinh = @TinhTrang
         WHERE MaTB = @MaTB;
-
-        -- Ghi log vào VeSinhLog
-        INSERT INTO VeSinhLog(MaTB, NgayVeSinh)
-        VALUES(@MaTB, @NgayVeSinh);
 
         COMMIT TRANSACTION;
     END TRY
@@ -93,6 +100,41 @@ BEGIN
         THROW;
     END CATCH
 END
+GO
+
+CREATE OR ALTER TRIGGER trg_VeSinh_Update
+ON ThietBi
+AFTER UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Ngăn không cho Bẩn -> Sạch
+    IF EXISTS (
+        SELECT 1
+        FROM inserted i
+        JOIN deleted d ON i.MaTB = d.MaTB
+        WHERE d.TinhTrangVeSinh = N'Bẩn'
+          AND i.TinhTrangVeSinh = N'Sạch'
+    )
+    BEGIN
+        RAISERROR (N'Không thể chuyển trực tiếp từ Bẩn sang Sạch. Hãy qua trạng thái Đang vệ sinh trước.', 16, 1);
+        ROLLBACK TRANSACTION;
+        RETURN;
+    END
+
+    -- Giữ nguyên logic cũ: log khi Đang vệ sinh -> Sạch
+    IF UPDATE(TinhTrangVeSinh)
+    BEGIN
+        INSERT INTO VeSinhLog(MaTB, NgayVeSinh)
+        SELECT i.MaTB, GETDATE()
+        FROM inserted i
+        JOIN deleted d ON i.MaTB = d.MaTB
+        WHERE d.TinhTrangVeSinh = N'Đang vệ sinh'
+          AND i.TinhTrangVeSinh = N'Sạch';
+    END
+END
+GO
 
 CREATE TRIGGER trg_UpdateVeSinh ON v_ThietBi_VeSinh
 INSTEAD OF UPDATE
@@ -104,30 +146,6 @@ BEGIN
     INNER JOIN inserted i ON tb.MaTB = i.MaTB;
 END
 GO
-
-
-
-
-
---13. Thêm công việc
-INSERT INTO CongViec (MaCV, TenCV, LuongCa)
-VALUES
-('CV01', N'Lễ tân', 200000),
-('CV02', N'Vệ sinh', 180000),
-('CV03', N'Bảo trì', 220000),
-('CV04', N'PT', 500000);
-
---14. Thêm nhân viên
-INSERT INTO NhanVien (MaNV, HoTen, NgaySinh, SoDienThoai, DiaChi, GioiTinh, MaCV)
-VALUES
-('NV01', N'Nguyễn Thị Lan', '1998-05-12', '0905123456', N'123 Lê Lợi, Hà Nội', N'Nữ', 'CV01'),
-('NV02', N'Trần Văn Hùng', '1985-03-20', '0912345678', N'45 Nguyễn Huệ, TP.HCM', N'Nam', 'CV02'),
-('NV03', N'Phạm Thị Hoa', '1990-11-02', '0987654321', N'78 Hai Bà Trưng, Đà Nẵng', N'Nữ', 'CV02'),
-('NV04', N'Ngô Văn Bình', '1988-07-15', '0978123456', N'56 Lý Thường Kiệt, Hà Nội', N'Nam', 'CV03'),
-('NV05', N'Đặng Quang Minh', '1995-01-10', '0934567890', N'89 Điện Biên Phủ, TP.HCM', N'Nam', 'CV04'),
-('NV06', N'Lê Thị Hương', '1997-08-25', '0945678901', N'12 Võ Thị Sáu, Huế', N'Nữ', 'CV01'),
-('NV07', N'Hoàng Văn Tuấn', '1992-09-05', '0956789012', N'34 Cách Mạng Tháng 8, Cần Thơ', N'Nam', 'CV04');
-
 
 -- Thêm thiết bị
 CREATE PROCEDURE sp_ThemThietBi
@@ -169,6 +187,8 @@ BEGIN
     BEGIN TRY
         BEGIN TRANSACTION;   -- bắt đầu giao dịch
 
+		DELETE FROM VeSinhLog WHERE MaTB = @MaTB;
+
         -- Xoá log bảo trì liên quan trước (nếu có ràng buộc khoá ngoại)
         DELETE FROM BaoTri WHERE MaTB = @MaTB;
 
@@ -184,14 +204,9 @@ BEGIN
     END CATCH
 END
 GO
+
 -- Lấy danh sách thiết bị
 CREATE PROCEDURE sp_GetThietBi
-AS
-BEGIN
-    SELECT * FROM ThietBi;
-END
-GO
-ALTER PROCEDURE sp_GetThietBi
 AS
 BEGIN
     SELECT tb.MaTB,
@@ -204,10 +219,7 @@ BEGIN
     FROM dbo.ThietBi tb
     LEFT JOIN dbo.LoaiThietBi lt ON tb.MaLoai = lt.MaLoai;
 END
-
-
-
-
+GO
 
 --View
 CREATE VIEW v_ThietBi
@@ -221,16 +233,7 @@ SELECT tb.MaTB,
        tb.ViTri
 FROM ThietBi tb
 LEFT JOIN LoaiThietBi lt ON tb.MaLoai = lt.MaLoai;
-
-
-INSERT INTO LoaiThietBi (MaLoai, TenLoai) VALUES
-('ML01', N'Máy chạy bộ'),
-('ML02', N'Xe đạp tập'),
-('ML03', N'Dàn tạ đa năng');
-
-SELECT * FROM dbo.LoaiThietBi;
-
-
+GO
 
 CREATE PROCEDURE sp_UpdateTinhTrang
     @MaTB VARCHAR(10),
@@ -280,7 +283,7 @@ BEGIN
 END
 GO
 
-CREATE TRIGGER trg_CheckChiPhi
+CREATE OR ALTER TRIGGER trg_CheckChiPhi
 ON BaoTri
 AFTER INSERT
 AS
@@ -318,43 +321,6 @@ BEGIN
 END
 GO
 
-DROP TRIGGER dbo.trg_TotalChiPhi;
-CREATE TRIGGER trg_TotalChiPhi
-ON BaoTri
-AFTER INSERT
-AS
-BEGIN
-    DECLARE @MaTB VARCHAR(10);
-
-    -- Duyệt qua tất cả thiết bị vừa insert log bảo trì
-    DECLARE cur CURSOR FOR
-        SELECT DISTINCT MaTB FROM inserted;
-
-    OPEN cur;
-    FETCH NEXT FROM cur INTO @MaTB;
-
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        DECLARE @Tong FLOAT;
-        SELECT @Tong = SUM(ChiPhi) FROM BaoTri WHERE MaTB = @MaTB;
-
-        IF @Tong > 5000000
-        BEGIN
-            UPDATE ThietBi SET TinhTrang = N'Hỏng'
-            WHERE MaTB = @MaTB;
-
-            UPDATE BaoTri SET KetQua = N'Hỏng'
-            WHERE MaTB = @MaTB AND MaBT IN (SELECT MaBT FROM inserted);
-        END
-
-        FETCH NEXT FROM cur INTO @MaTB;
-    END
-
-    CLOSE cur;
-    DEALLOCATE cur;
-END
-GO
-
 
 CREATE OR ALTER TRIGGER trg_TotalChiPhi
 ON BaoTri
@@ -382,12 +348,32 @@ BEGIN
     INNER JOIN inserted i ON bt.MaBT = i.MaBT
     INNER JOIN @TongChiPhi t ON i.MaTB = t.MaTB;
 END
+GO
 
+CREATE OR ALTER TRIGGER trg_CheckVeSinh_OnlyWhenUsable
+ON ThietBi
+AFTER UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
 
-
-
-
-
+    -- Nếu thiết bị không ở trạng thái Đang sử dụng nhưng vẫn bị đổi vệ sinh → chặn
+    IF EXISTS (
+        SELECT 1
+        FROM inserted i
+        JOIN deleted d ON i.MaTB = d.MaTB
+        JOIN ThietBi tb ON i.MaTB = tb.MaTB
+        WHERE tb.TinhTrang <> N'Đang sử dụng'
+          AND i.TinhTrangVeSinh IN (N'Đang vệ sinh', N'Sạch')
+          AND i.TinhTrangVeSinh <> d.TinhTrangVeSinh  -- chỉ khi có thay đổi trạng thái vệ sinh
+    )
+    BEGIN
+        RAISERROR (N'Thiết bị không ở trạng thái Đang sử dụng nên không thể cập nhật vệ sinh.', 16, 1);
+        ROLLBACK TRANSACTION;
+        RETURN;
+    END
+END
+GO
 
 CREATE FUNCTION fn_TongChiPhiThietBi(@MaTB VARCHAR(10))
 RETURNS FLOAT
@@ -409,7 +395,7 @@ BEGIN
     SELECT @Avg = AVG(ChiPhi)
     FROM BaoTri
     WHERE MaTB = @MaTB;
-    RETURN ISNULL(@Avg,0);
+    RETURN ISNULL(@Avg,0);CREATE OR ALTER TRIGGER trg_CheckChiPhi
 END
 GO
 
@@ -424,75 +410,6 @@ BEGIN
     RETURN @Count;
 END
 GO
-
-
-ALTER TABLE BaoTri
-DROP CONSTRAINT fk_BaoTri_ThietBi;
-
-ALTER TABLE BaoTri
-ADD CONSTRAINT fk_BaoTri_ThietBi
-FOREIGN KEY (MaTB) REFERENCES ThietBi(MaTB)
-ON DELETE CASCADE;
-
-
-
--- Thêm vài thiết bị
-INSERT INTO ThietBi (MaTB, TenTB, MaLoai, NgayNhap, TinhTrang, ViTri)
-VALUES
-('TB01', N'Máy chạy bộ LifeFitness', 'ML01', '2023-01-10', N'Đang sử dụng', N'Khu Cardio A1'),
-('TB02', N'Xe đạp tập Technogym', 'ML02', '2023-02-15', N'Đang sử dụng', N'Khu Cardio A2'),
-('TB03', N'Dàn tạ đa năng Bowflex', 'ML03', '2023-03-20', N'Cần bảo trì', N'Khu Tạ B1'),
-('TB04', N'Máy chạy bộ StarTrac', 'ML01', '2022-10-05', N'Đang sử dụng', N'Khu Cardio A3'),
-('TB05', N'Xe đạp tập Reebok', 'ML02', '2023-04-25', N'Hỏng', N'Khu Cardio A4');
-
--- Log bảo trì cho thiết bị
-INSERT INTO BaoTri (MaTB, MaNV, NgayBaoTri, MoTa, ChiPhi, KetQua)
-VALUES
-('TB01', 'NV04', '2023-08-10', N'Bảo dưỡng định kỳ', 1500000, N'Sửa xong'),
-('TB01', 'NV04', '2024-02-12', N'Thay băng tải máy chạy', 2200000, N'Sửa xong'),
-
-('TB02', 'NV04', '2023-09-05', N'Thay bàn đạp bị gãy', 800000, N'Sửa xong'),
-
-('TB03', 'NV04', '2024-03-18', N'Thay cáp tạ bị đứt', 5500000, N'Hỏng'),
-('TB03', 'NV04', '2024-05-22', N'Thử thay phụ kiện nhưng không sửa được', 3000000, N'Không sửa được'),
-
-('TB04', 'NV04', '2024-01-15', N'Bảo dưỡng motor', 1800000, N'Sửa xong'),
-
-('TB05', 'NV04', '2023-11-11', N'Bảo trì bàn đạp', 6000000, N'Hỏng'); -- > 5tr trigger ép Hỏng
-
-
-INSERT INTO ThietBi (MaTB, TenTB, MaLoai, NgayNhap, TinhTrang, ViTri)
-VALUES
-('TB06', N'Máy tập cơ bụng ABC', 'ML03', '2023-07-01', N'Cần bảo trì', N'Khu Tạ B2'),
-('TB07', N'Xe đạp tập Impulse', 'ML02', '2023-09-15', N'Cần bảo trì', N'Khu Cardio A5');
-
-
--- TB06: thêm 2 lần bảo trì nữa
-INSERT INTO BaoTri (MaTB, MaNV, NgayBaoTri, MoTa, ChiPhi, KetQua)
-VALUES
-('TB06', 'NV04', '2024-08-15', N'Thay dây cáp phụ', 2000000, N'Không sửa được'),
-('TB06', 'NV04', '2024-09-10', N'Bảo dưỡng motor nhỏ', 500000, N'Không sửa được');
-
--- TB07: thêm 2 lần bảo trì nữa
-INSERT INTO BaoTri (MaTB, MaNV, NgayBaoTri, MoTa, ChiPhi, KetQua)
-VALUES
-('TB07', 'NV04', '2024-08-20', N'Thay bàn đạp mới', 2200000, N'Sửa xong'),
-('TB07', 'NV04', '2024-09-05', N'Bảo trì định kỳ', 1000000, N'Sửa xong');
-
-
--- TB06: có vài lần bảo trì nhưng chưa ổn → vẫn cần bảo trì
-INSERT INTO BaoTri (MaTB, MaNV, NgayBaoTri, MoTa, ChiPhi, KetQua)
-VALUES
-('TB06', 'NV04', '2024-06-10', N'Thay cáp tập cơ bụng', 2500000, N'Không sửa được'),
-('TB06', 'NV04', '2024-07-05', N'Thay phụ kiện nhỏ nhưng không khắc phục được', 1200000, N'Không sửa được');
-
--- TB07: bảo trì nhiều lần, có chi phí nhỏ và vừa, nhưng kết quả không khả quan → vẫn cần bảo trì
-INSERT INTO BaoTri (MaTB, MaNV, NgayBaoTri, MoTa, ChiPhi, KetQua)
-VALUES
-('TB07', 'NV04', '2024-05-20', N'Bảo dưỡng hệ thống bàn đạp', 1800000, N'Không sửa được'),
-('TB07', 'NV04', '2024-07-28', N'Thay ốc vít, căn chỉnh nhưng chưa hoạt động ổn định', 800000, N'Không sửa được');
-GO
-
 
 
 CREATE FUNCTION fn_GetCanBaoTri()
@@ -511,7 +428,7 @@ AS
 SELECT MaTB, TenTB, TinhTrang, ViTri
 FROM ThietBi
 WHERE TinhTrang = N'Cần bảo trì';
-
+GO
 
 CREATE FUNCTION fn_ReportTongChiPhi()
 RETURNS TABLE
@@ -552,90 +469,131 @@ BEGIN
 
     RETURN;
 END
-
---9. Tạo bảng Account
-CREATE TABLE Account(
-	MaNV VARCHAR(10) PRIMARY KEY REFERENCES dbo.NhanVien(MaNV),
-	Password VARCHAR(Max) NOT NULL
-)
---Thêm tài khoản
-INSERT INTO Account(MaNV, Password)
-VALUES
-('NV01', '123'),
-('NV02', '123'),
-('NV03', '123'),
-('NV04', '123'),
-('NV05', '123'),
-('NV06', '123'),
-('NV07', '123');
-
--- Tạo login (cấp server-level login)
-CREATE LOGIN adminUser WITH PASSWORD = '123';
-CREATE LOGIN baotriUser WITH PASSWORD = '123';
-CREATE LOGIN vesinhUser WITH PASSWORD = '123';
-
--- Gắn login này vào database QLGYM
-USE QLGYM;
-CREATE USER adminUser FOR LOGIN adminUser;
-CREATE USER baotriUser FOR LOGIN baotriUser;
-CREATE USER vesinhUser FOR LOGIN vesinhUser;
-
+GO
 
 -- Tạo role
-CREATE ROLE Role_Admin;
-CREATE ROLE Role_BaoTri;
-CREATE ROLE Role_VeSinh;
+CREATE ROLE rl_admin;
+CREATE ROLE rl_pt;        -- PT (huấn luyện viên cá nhân)
+CREATE ROLE rl_le_tan;    -- lễ tân
+CREATE ROLE rl_bao_tri;   -- bảo trì
+CREATE ROLE rl_ve_sinh;   -- vệ sinh
+GO
 
--- Cấp quyền cho role
--- Admin full quyền
-GRANT SELECT, INSERT, UPDATE, DELETE ON ThietBi TO Role_Admin;
-GRANT SELECT, INSERT, UPDATE, DELETE ON BaoTri TO Role_Admin;
+-- Tạo login & user cho admin
+CREATE LOGIN Admin_Login WITH PASSWORD = 'Admin@123';
+CREATE USER Admin_User FOR LOGIN Admin_Login WITH DEFAULT_SCHEMA = [QLGYM];
 
--- Bảo trì: chỉ xem thiết bị + thêm log bảo trì
-GRANT SELECT ON ThietBi TO Role_BaoTri;
-GRANT SELECT, INSERT ON BaoTri TO Role_BaoTri;
+-- NV01
+CREATE LOGIN NV01_Login WITH PASSWORD = 'NV01@123';
+CREATE USER NV01_User FOR LOGIN NV01_Login WITH DEFAULT_SCHEMA = [QLGYM];
 
--- Vệ sinh: chỉ được xem thiết bị
-GRANT SELECT ON ThietBi TO Role_VeSinh;
+-- NV02
+CREATE LOGIN NV02_Login WITH PASSWORD = 'NV02@123';
+CREATE USER NV02_User FOR LOGIN NV02_Login WITH DEFAULT_SCHEMA = [QLGYM];
 
--- Gán user vào role
-EXEC sp_addrolemember 'Role_Admin', 'adminUser';
-EXEC sp_addrolemember 'Role_BaoTri', 'baotriUser';
-EXEC sp_addrolemember 'Role_VeSinh', 'vesinhUser';
+-- NV03
+CREATE LOGIN NV03_Login WITH PASSWORD = 'NV03@123';
+CREATE USER NV03_User FOR LOGIN NV03_Login WITH DEFAULT_SCHEMA = [QLGYM];
 
--- Admin full
-GRANT SELECT, INSERT, UPDATE, DELETE ON LoaiThietBi TO Role_Admin;
+-- NV04
+CREATE LOGIN NV04_Login WITH PASSWORD = 'NV04@123';
+CREATE USER NV04_User FOR LOGIN NV04_Login WITH DEFAULT_SCHEMA = [QLGYM];
 
--- Bảo trì: chỉ cần SELECT loại thiết bị (để hiển thị combobox)
-GRANT SELECT ON LoaiThietBi TO Role_BaoTri;
+-- NV05
+CREATE LOGIN NV05_Login WITH PASSWORD = 'NV05@123';
+CREATE USER NV05_User FOR LOGIN NV05_Login WITH DEFAULT_SCHEMA = [QLGYM];
 
--- Vệ sinh: cũng chỉ cần SELECT để hiển thị
-GRANT SELECT ON LoaiThietBi TO Role_VeSinh;
+-- NV06
+CREATE LOGIN NV06_Login WITH PASSWORD = 'NV06@123';
+CREATE USER NV06_User FOR LOGIN NV06_Login WITH DEFAULT_SCHEMA = [QLGYM];
 
--- Nếu có view v_ThietBi thì cũng cần cấp
-GRANT SELECT ON v_ThietBi TO Role_BaoTri;
-GRANT SELECT ON v_ThietBi TO Role_VeSinh; 
+-- NV07
+CREATE LOGIN NV07_Login WITH PASSWORD = 'NV07@123';
+CREATE USER NV07_User FOR LOGIN NV07_Login WITH DEFAULT_SCHEMA = [QLGYM];
+GO
 
--- ========== PROCEDURE ==========
-GRANT EXECUTE ON OBJECT::dbo.sp_ThemThietBi TO Role_Admin;
-GRANT EXECUTE ON OBJECT::dbo.sp_SuaThietBi TO Role_Admin;
-GRANT EXECUTE ON OBJECT::dbo.sp_XoaThietBi TO Role_Admin;
-GRANT EXECUTE ON OBJECT::dbo.sp_GetThietBi TO Role_Admin;
-GRANT EXECUTE ON OBJECT::dbo.sp_UpdateTinhTrang TO Role_Admin;
-GRANT EXECUTE ON OBJECT::dbo.sp_ThemBaoTri TO Role_Admin;
-GRANT EXECUTE ON OBJECT::dbo.sp_GetBaoTriByMaTB TO Role_Admin;
+-- Gán role
+ALTER ROLE rl_admin   ADD MEMBER Admin_User;
+ALTER ROLE rl_pt      ADD MEMBER NV05_User;   -- NV05 = PT
+ALTER ROLE rl_pt      ADD MEMBER NV07_User;   -- NV07 = PT
+ALTER ROLE rl_le_tan  ADD MEMBER NV01_User;   -- NV01 = lễ tân
+ALTER ROLE rl_le_tan  ADD MEMBER NV06_User;   -- NV06 = lễ tân
+ALTER ROLE rl_bao_tri ADD MEMBER NV04_User;   -- NV04 = bảo trì
+ALTER ROLE rl_ve_sinh ADD MEMBER NV02_User;   -- NV02 = vệ sinh
+ALTER ROLE rl_ve_sinh ADD MEMBER NV03_User;   -- NV03 = vệ sinh
+GO
 
--- ========== VIEW ==========
-GRANT SELECT ON OBJECT::dbo.v_ThietBi TO Role_Admin;
-GRANT SELECT ON OBJECT::dbo.v_GetCanBaoTri TO Role_Admin;
 
--- ========== FUNCTION ==========
--- Table-valued function (SELECT)
-GRANT SELECT ON OBJECT::dbo.fn_GetCanBaoTri TO Role_Admin;
-GRANT SELECT ON OBJECT::dbo.fn_ReportTongChiPhi TO Role_Admin;
-GRANT SELECT ON OBJECT::dbo.fn_ReportTopChiPhi_Multi TO Role_Admin;
+-- Admin full quyền trên bảng
+GRANT SELECT, INSERT, UPDATE, DELETE ON ThietBi TO rl_admin;
+GRANT SELECT, INSERT, UPDATE, DELETE ON BaoTri TO rl_admin;
+GRANT SELECT, INSERT, UPDATE, DELETE ON VeSinhLog TO rl_admin;
+GRANT SELECT, INSERT, UPDATE, DELETE ON LoaiThietBi TO rl_admin;
 
--- Scalar function (EXECUTE)
-GRANT EXECUTE ON OBJECT::dbo.fn_TongChiPhiThietBi TO Role_Admin;
-GRANT EXECUTE ON OBJECT::dbo.fn_AvgChiPhiBaoTri TO Role_Admin;
-GRANT EXECUTE ON OBJECT::dbo.fn_CountCanBaoTri TO Role_Admin;
+
+-- Admin full quyền trên view
+GRANT SELECT ON OBJECT::dbo.v_ThietBi TO rl_admin;
+GRANT SELECT ON OBJECT::dbo.v_GetCanBaoTri TO rl_admin;
+GRANT SELECT ON OBJECT::dbo.v_VeSinhTheoThang TO rl_admin;
+GRANT SELECT ON OBJECT::dbo.v_ThietBi_VeSinh TO rl_admin;
+
+-- Admin full quyền với procedure
+GRANT EXECUTE ON OBJECT::dbo.sp_ThemThietBi TO rl_admin;
+GRANT EXECUTE ON OBJECT::dbo.sp_SuaThietBi TO rl_admin;
+GRANT EXECUTE ON OBJECT::dbo.sp_XoaThietBi TO rl_admin;
+GRANT EXECUTE ON OBJECT::dbo.sp_GetThietBi TO rl_admin;
+GRANT EXECUTE ON OBJECT::dbo.sp_UpdateTinhTrang TO rl_admin;
+GRANT EXECUTE ON OBJECT::dbo.sp_ThemBaoTri TO rl_admin;
+GRANT EXECUTE ON OBJECT::dbo.sp_GetBaoTriByMaTB TO rl_admin;
+GRANT EXECUTE ON OBJECT::dbo.sp_CapNhatVeSinh TO rl_admin;
+
+
+-- Admin full quyền với function (table-valued: SELECT, scalar: EXECUTE)
+GRANT SELECT ON OBJECT::dbo.fn_GetCanBaoTri TO rl_admin;
+GRANT SELECT ON OBJECT::dbo.fn_ReportTongChiPhi TO rl_admin;
+GRANT SELECT ON OBJECT::dbo.fn_ReportTopChiPhi_Multi TO rl_admin;
+
+GRANT EXECUTE ON OBJECT::dbo.fn_TongChiPhiThietBi TO rl_admin;
+GRANT EXECUTE ON OBJECT::dbo.fn_AvgChiPhiBaoTri TO rl_admin;
+GRANT EXECUTE ON OBJECT::dbo.fn_CountCanBaoTri TO rl_admin;
+
+
+--Phân quyền cho Bảo trì (rl_bao_tri)
+-- Chỉ xem thiết bị
+GRANT SELECT ON ThietBi TO rl_bao_tri;
+GRANT SELECT ON LoaiThietBi TO rl_bao_tri;
+
+-- Chỉ thao tác với bảng BaoTri (thêm, xem, không xóa thiết bị)
+GRANT SELECT, INSERT, UPDATE ON BaoTri TO rl_bao_tri;
+
+-- Xem view liên quan đến thiết bị
+GRANT SELECT ON OBJECT::dbo.v_ThietBi TO rl_bao_tri;
+GRANT SELECT ON OBJECT::dbo.v_GetCanBaoTri TO rl_bao_tri;
+
+-- Cho phép gọi procedure liên quan bảo trì
+GRANT EXECUTE ON OBJECT::dbo.sp_ThemBaoTri TO rl_bao_tri;
+GRANT EXECUTE ON OBJECT::dbo.sp_GetBaoTriByMaTB TO rl_bao_tri;
+
+-- Cho phép xem báo cáo (function bảo trì)
+GRANT SELECT ON OBJECT::dbo.fn_GetCanBaoTri TO rl_bao_tri;
+
+
+
+--Phân quyền cho Vệ sinh (rl_ve_sinh)
+-- Chỉ xem thiết bị
+GRANT SELECT ON ThietBi TO rl_ve_sinh;
+GRANT SELECT ON LoaiThietBi TO rl_ve_sinh;
+
+-- Chỉ thao tác với bảng vệ sinh
+GRANT SELECT, INSERT ON VeSinhLog TO rl_ve_sinh;
+
+-- Cho phép xem các view thống kê vệ sinh
+GRANT SELECT ON OBJECT::dbo.v_VeSinhTheoThang TO rl_ve_sinh;
+GRANT SELECT ON OBJECT::dbo.v_ThietBi_VeSinh TO rl_ve_sinh;
+GRANT SELECT ON OBJECT::dbo.v_ThietBi TO rl_ve_sinh;
+
+-- Cho phép gọi procedure cập nhật vệ sinh
+GRANT EXECUTE ON OBJECT::dbo.sp_CapNhatVeSinh TO rl_ve_sinh;
+
+
+

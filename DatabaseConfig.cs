@@ -11,10 +11,7 @@ namespace QLTB
 {
     public static class DatabaseConfig
     {
-        // Connection string sẽ được set khi login
-        public static string ConnectionString { get; private set; }
-
-        // Hàm để gán lại connection string khi user đăng nhập
+        public static string ConnectionString { get;  set; }
         public static void SetConnection(string userId, string password)
         {
             ConnectionString = $"Data Source=.;Initial Catalog=QLGYM;User ID={userId};Password={password};TrustServerCertificate=True";

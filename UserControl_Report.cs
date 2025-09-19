@@ -188,57 +188,12 @@ namespace QLTB
             dgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         }
 
-        private void tabControlReport_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void dgvCanBaoTri_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
-
         private void btnExportCanBaoTri_Click(object sender, EventArgs e)
         {
 
         }
 
-        private void label3_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void lblAvgChiPhi_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label2_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void lblTongChiPhi_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void lblCountCanBaoTri_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void tabTongChiPhi_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void dgvTongChiPhi_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
 
         }
@@ -249,11 +204,6 @@ namespace QLTB
         }
 
         private void tabTopChiPhi_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void dgvTopChiPhi_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
 
         }
