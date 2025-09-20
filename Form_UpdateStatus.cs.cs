@@ -33,20 +33,33 @@ namespace QLTB
                 return;
             }
 
-            using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
+            try
             {
-                conn.Open();
-                using (SqlCommand cmd = new SqlCommand("sp_UpdateTinhTrang", conn))
+                using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@MaTB", txtMaTB.Text);
-                    cmd.Parameters.AddWithValue("@TinhTrang", cboTinhTrang.Text);
+                    conn.Open();
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_UpdateTinhTrang", conn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@MaTB", txtMaTB.Text);
+                        cmd.Parameters.AddWithValue("@TinhTrang", cboTinhTrang.Text);
 
-                    int rows = cmd.ExecuteNonQuery();
-                    MessageBox.Show(rows > 0 ? "Cập nhật thành công!" : "Không tìm thấy thiết bị.");
+                        int rows = cmd.ExecuteNonQuery();
+                        MessageBox.Show(rows > 0 ? "Cập nhật thành công!" : "Không tìm thấy thiết bị.");
+                    }
                 }
+                this.Close();
             }
-            this.Close(); 
+            catch (SqlException ex)
+            {
+                string msg = SqlErrorHandler.Translate(ex);
+                MessageBox.Show(msg, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Có lỗi xảy ra: " + ex.Message,
+                                "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
         private void Form_UpdateStatus_Load(object sender, EventArgs e)
         {

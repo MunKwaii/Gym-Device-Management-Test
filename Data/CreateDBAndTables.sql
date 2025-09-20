@@ -61,22 +61,16 @@ FROM VeSinhLog
 GROUP BY YEAR(NgayVeSinh), MONTH(NgayVeSinh);
 GO
 
-
 CREATE OR ALTER VIEW v_ThietBi_VeSinh
 AS
 SELECT 
     tb.MaTB,
     tb.TenTB,
     tb.TinhTrangVeSinh,
-    vs.NgayVeSinh
+    MAX(v.NgayVeSinh) AS NgayVeSinh
 FROM ThietBi tb
-OUTER APPLY
-(
-    SELECT TOP 1 v.NgayVeSinh
-    FROM VeSinhLog v
-    WHERE v.MaTB = tb.MaTB
-    ORDER BY v.NgayVeSinh DESC
-) vs;
+LEFT JOIN VeSinhLog v ON v.MaTB = tb.MaTB
+GROUP BY tb.MaTB, tb.TenTB, tb.TinhTrangVeSinh;
 GO
 
 CREATE OR ALTER PROCEDURE sp_CapNhatVeSinh
@@ -107,7 +101,6 @@ ON ThietBi
 AFTER UPDATE
 AS
 BEGIN
-    SET NOCOUNT ON;
 
     -- Ngăn không cho Bẩn -> Sạch
     IF EXISTS (
@@ -167,7 +160,6 @@ CREATE OR ALTER PROCEDURE sp_TimKiemThietBi
     @TuKhoa NVARCHAR(100) = NULL
 AS
 BEGIN
-    SET NOCOUNT ON;
 
     SELECT tb.MaTB,
            tb.TenTB,
@@ -185,6 +177,48 @@ BEGIN
     ORDER BY tb.NgayNhap DESC;
 END
 GO
+
+
+CREATE OR ALTER PROCEDURE sp_TimKiemThietBiVeSinh
+    @TuKhoa NVARCHAR(100) = NULL
+AS
+BEGIN
+    SELECT MaTB,
+           TenTB,
+           TinhTrangVeSinh,
+           NgayVeSinh
+    FROM v_ThietBi_VeSinh
+    WHERE @TuKhoa IS NULL
+          OR MaTB LIKE N'%' + @TuKhoa + N'%'
+          OR TenTB LIKE N'%' + @TuKhoa + N'%'
+          OR TinhTrangVeSinh LIKE N'%' + @TuKhoa + N'%'
+          OR CONVERT(NVARCHAR(10), NgayVeSinh, 120) LIKE N'%' + @TuKhoa + N'%'
+    ORDER BY NgayVeSinh DESC;
+END
+GO
+
+
+CREATE OR ALTER PROCEDURE sp_TimKiemCanBaoTri
+    @TuKhoa NVARCHAR(100) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT MaTB,
+           TenTB,
+           TinhTrang,
+           ViTri
+    FROM v_GetCanBaoTri
+    WHERE @TuKhoa IS NULL
+          OR MaTB LIKE N'%' + @TuKhoa + N'%'
+          OR TenTB LIKE N'%' + @TuKhoa + N'%'
+          OR TinhTrang LIKE N'%' + @TuKhoa + N'%'
+          OR ViTri LIKE N'%' + @TuKhoa + N'%'
+    ORDER BY TenTB;
+END
+GO
+
+
 
 -- Sửa thiết bị
 CREATE PROCEDURE sp_SuaThietBi
@@ -307,6 +341,15 @@ BEGIN
 END
 GO
 
+CREATE OR ALTER PROCEDURE sp_XoaBaoTri
+    @MaBT INT
+AS
+BEGIN
+    DELETE FROM BaoTri
+    WHERE MaBT = @MaBT;
+END
+GO
+
 CREATE OR ALTER TRIGGER trg_CheckChiPhi
 ON BaoTri
 AFTER INSERT
@@ -379,7 +422,6 @@ ON ThietBi
 AFTER UPDATE
 AS
 BEGIN
-    SET NOCOUNT ON;
 
     -- Nếu thiết bị không ở trạng thái Đang sử dụng nhưng vẫn bị đổi vệ sinh → chặn
     IF EXISTS (
@@ -570,8 +612,10 @@ GRANT EXECUTE ON OBJECT::dbo.sp_UpdateTinhTrang TO rl_admin;
 GRANT EXECUTE ON OBJECT::dbo.sp_ThemBaoTri TO rl_admin;
 GRANT EXECUTE ON OBJECT::dbo.sp_GetBaoTriByMaTB TO rl_admin;
 GRANT EXECUTE ON OBJECT::dbo.sp_CapNhatVeSinh TO rl_admin;
-
-
+GRANT EXECUTE ON OBJECT::dbo.sp_TimKiemThietBi TO rl_admin;
+GRANT EXECUTE ON OBJECT::dbo.sp_XoaBaoTri TO rl_admin;
+GRANT EXECUTE ON OBJECT::dbo.sp_TimKiemCanBaoTri TO rl_admin;
+GRANT EXECUTE ON OBJECT::dbo.sp_TimKiemThietBiVeSinh TO rl_admin;
 -- Admin full quyền với function (table-valued: SELECT, scalar: EXECUTE)
 GRANT SELECT ON OBJECT::dbo.fn_GetCanBaoTri TO rl_admin;
 GRANT SELECT ON OBJECT::dbo.fn_ReportTongChiPhi TO rl_admin;
@@ -592,11 +636,12 @@ GRANT SELECT, INSERT, UPDATE ON BaoTri TO rl_bao_tri;
 
 -- Xem view liên quan đến thiết bị
 GRANT SELECT ON OBJECT::dbo.v_ThietBi TO rl_bao_tri;
-GRANT SELECT ON OBJECT::dbo.v_GetCanBaoTri TO rl_bao_tri;
+
 
 -- Cho phép gọi procedure liên quan bảo trì
 GRANT EXECUTE ON OBJECT::dbo.sp_ThemBaoTri TO rl_bao_tri;
 GRANT EXECUTE ON OBJECT::dbo.sp_GetBaoTriByMaTB TO rl_bao_tri;
+GRANT EXECUTE ON OBJECT::dbo.sp_TimKiemThietBi TO rl_bao_tri;
 
 -- Cho phép xem báo cáo (function bảo trì)
 GRANT SELECT ON OBJECT::dbo.fn_GetCanBaoTri TO rl_bao_tri;
@@ -612,9 +657,10 @@ GRANT SELECT ON LoaiThietBi TO rl_ve_sinh;
 GRANT SELECT, INSERT ON VeSinhLog TO rl_ve_sinh;
 
 -- Cho phép xem các view thống kê vệ sinh
-GRANT SELECT ON OBJECT::dbo.v_VeSinhTheoThang TO rl_ve_sinh;
 GRANT SELECT ON OBJECT::dbo.v_ThietBi_VeSinh TO rl_ve_sinh;
 GRANT SELECT ON OBJECT::dbo.v_ThietBi TO rl_ve_sinh;
+GRANT EXECUTE ON OBJECT::dbo.sp_TimKiemThietBi TO rl_ve_sinh;
+GRANT EXECUTE ON OBJECT::dbo.sp_TimKiemThietBiVeSinh TO rl_ve_sinh;
 
 -- Cho phép gọi procedure cập nhật vệ sinh
 GRANT EXECUTE ON OBJECT::dbo.sp_CapNhatVeSinh TO rl_ve_sinh;

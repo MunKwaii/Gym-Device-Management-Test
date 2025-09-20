@@ -43,6 +43,7 @@
             this.btnLogin = new Guna.UI2.WinForms.Guna2GradientButton();
             this.txtPassword = new Guna.UI2.WinForms.Guna2TextBox();
             this.txtUsername = new Guna.UI2.WinForms.Guna2TextBox();
+            this.btnDong = new Guna.UI2.WinForms.Guna2GradientButton();
             this.guna2CustomGradientPanel1.SuspendLayout();
             this.guna2Panel2.SuspendLayout();
             this.SuspendLayout();
@@ -51,6 +52,7 @@
             // 
             this.guna2CustomGradientPanel1.BackColor = System.Drawing.Color.Transparent;
             this.guna2CustomGradientPanel1.BorderRadius = 35;
+            this.guna2CustomGradientPanel1.Controls.Add(this.btnDong);
             this.guna2CustomGradientPanel1.Controls.Add(this.btnExit);
             this.guna2CustomGradientPanel1.Controls.Add(this.guna2CircleButton3);
             this.guna2CustomGradientPanel1.Controls.Add(this.guna2CircleButton2);
@@ -271,6 +273,23 @@
             this.txtUsername.TabIndex = 0;
             this.txtUsername.TextChanged += new System.EventHandler(this.txtUsername_TextChanged);
             // 
+            // btnDong
+            // 
+            this.btnDong.BorderRadius = 20;
+            this.btnDong.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
+            this.btnDong.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
+            this.btnDong.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
+            this.btnDong.DisabledState.FillColor2 = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
+            this.btnDong.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
+            this.btnDong.Font = new System.Drawing.Font("Segoe UI Black", 9F, System.Drawing.FontStyle.Bold);
+            this.btnDong.ForeColor = System.Drawing.Color.White;
+            this.btnDong.Location = new System.Drawing.Point(269, 3);
+            this.btnDong.Name = "btnDong";
+            this.btnDong.Size = new System.Drawing.Size(45, 38);
+            this.btnDong.TabIndex = 25;
+            this.btnDong.Text = "X";
+            this.btnDong.Click += new System.EventHandler(this.btnDong_Click);
+            // 
             // Form_Login
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -305,5 +324,6 @@
         private Guna.UI2.WinForms.Guna2CircleButton guna2CircleButton1;
         private Guna.UI2.WinForms.Guna2Panel guna2Panel2;
         private Guna.UI2.WinForms.Guna2GradientCircleButton btnExit;
+        private Guna.UI2.WinForms.Guna2GradientButton btnDong;
     }
 }

@@ -73,5 +73,10 @@ namespace DBMS_Project
         {
             this.Close();
         }
+
+        private void btnDong_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
     }
 }

@@ -30,73 +30,12 @@ namespace QLTB
 
         private void btnThem_Click(object sender, EventArgs e)
         {
-            using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand("sp_ThemThietBi", conn);
-                cmd.CommandType = CommandType.StoredProcedure;
-
-                cmd.Parameters.AddWithValue("@MaTB", txtMaTB.Text);
-                cmd.Parameters.AddWithValue("@TenTB", txtTenTB.Text);
-                cmd.Parameters.AddWithValue("@MaLoai", cboLoaiTB.SelectedValue ?? (object)DBNull.Value);
-                cmd.Parameters.AddWithValue("@NgayNhap", dtNgayNhap.Value);
-                cmd.Parameters.AddWithValue("@TinhTrang", cboTinhTrang.Text);
-                cmd.Parameters.AddWithValue("@ViTri", txtViTri.Text);
-
-                int rows = cmd.ExecuteNonQuery();
-                MessageBox.Show(rows > 0 ? "Thêm thành công!" : "Thêm thất bại!");
-            }
-            LoadThietBi();
-        }
-
-        private void LoadThietBi()
-        {
-            using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
-            {
-                conn.Open();
-                string sql = "SELECT * FROM v_ThietBi";
-                SqlDataAdapter da = new SqlDataAdapter(sql, conn);
-
-                DataTable dt = new DataTable();
-                da.Fill(dt);
-
-                dgvThietBi.DataSource = dt;
-            }
-        }
-
-        private void LoadLoaiThietBi()
-        {
             try
             {
-                using (var conn = new SqlConnection(DatabaseConfig.ConnectionString))
-                using (var da = new SqlDataAdapter("SELECT MaLoai, TenLoai FROM LoaiThietBi", conn))
+                using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
                 {
-                    var dt = new DataTable();
-                    da.Fill(dt);
-                    cboLoaiTB.DisplayMember = "TenLoai";
-                    cboLoaiTB.ValueMember = "MaLoai";
-                    cboLoaiTB.DataSource = dt;
-                    cboLoaiTB.SelectedIndex = -1;
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Load LoaiThietBi lỗi: " + ex.Message);
-            }
-        }
-
-        private void btnReload_Click(object sender, EventArgs e)
-        {
-            LoadThietBi();
-        }
-
-        private void btnSua_Click(object sender, EventArgs e)
-        {
-            using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
-            {
-                conn.Open();
-                using (SqlCommand cmd = new SqlCommand("sp_SuaThietBi", conn))
-                {
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand("dbo.sp_ThemThietBi", conn);
                     cmd.CommandType = CommandType.StoredProcedure;
 
                     cmd.Parameters.AddWithValue("@MaTB", txtMaTB.Text);
@@ -107,10 +46,116 @@ namespace QLTB
                     cmd.Parameters.AddWithValue("@ViTri", txtViTri.Text);
 
                     int rows = cmd.ExecuteNonQuery();
-                    MessageBox.Show(rows > 0 ? "Sửa thành công!" : "Không có dữ liệu nào được sửa.");
+                    MessageBox.Show(rows > 0 ? "Thêm thành công!" : "Thêm thất bại!");
+                }
+                LoadThietBi();
+            }
+            catch (SqlException ex)
+            {
+                string msg = SqlErrorHandler.Translate(ex);
+                MessageBox.Show(msg, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Có lỗi xảy ra: " + ex.Message,
+                                "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void LoadThietBi()
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
+                {
+                    conn.Open();
+                    string sql = "SELECT * FROM dbo.v_ThietBi";
+                    SqlDataAdapter da = new SqlDataAdapter(sql, conn);
+
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+
+                    dgvThietBi.DataSource = dt;
                 }
             }
+            catch (SqlException ex)
+            {
+                string msg = SqlErrorHandler.Translate(ex);
+                MessageBox.Show(msg, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Có lỗi xảy ra: " + ex.Message,
+                                "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void LoadLoaiThietBi()
+        {
+            try
+            {
+                using (var conn = new SqlConnection(DatabaseConfig.ConnectionString))
+                using (var da = new SqlDataAdapter("SELECT MaLoai, TenLoai FROM dbo.LoaiThietBi", conn))
+                {
+                    var dt = new DataTable();
+                    da.Fill(dt);
+                    cboLoaiTB.DisplayMember = "TenLoai";
+                    cboLoaiTB.ValueMember = "MaLoai";
+                    cboLoaiTB.DataSource = dt;
+                    cboLoaiTB.SelectedIndex = -1;
+                }
+            }
+            catch (SqlException ex)
+            {
+                string msg = SqlErrorHandler.Translate(ex);
+                MessageBox.Show(msg, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Có lỗi xảy ra: " + ex.Message,
+                                "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnReload_Click(object sender, EventArgs e)
+        {
             LoadThietBi();
+        }
+
+        private void btnSua_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_SuaThietBi", conn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        cmd.Parameters.AddWithValue("@MaTB", txtMaTB.Text);
+                        cmd.Parameters.AddWithValue("@TenTB", txtTenTB.Text);
+                        cmd.Parameters.AddWithValue("@MaLoai", cboLoaiTB.SelectedValue ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@NgayNhap", dtNgayNhap.Value);
+                        cmd.Parameters.AddWithValue("@TinhTrang", cboTinhTrang.Text);
+                        cmd.Parameters.AddWithValue("@ViTri", txtViTri.Text);
+
+                        int rows = cmd.ExecuteNonQuery();
+                        MessageBox.Show(rows > 0 ? "Sửa thành công!" : "Không có dữ liệu nào được sửa.");
+                    }
+                }
+                LoadThietBi();
+            }
+            catch (SqlException ex)
+            {
+                string msg = SqlErrorHandler.Translate(ex);
+                MessageBox.Show(msg, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Có lỗi xảy ra: " + ex.Message,
+                                "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnXoa_Click(object sender, EventArgs e)
@@ -123,19 +168,70 @@ namespace QLTB
 
             if (MessageBox.Show("Bạn có chắc muốn xoá thiết bị này?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
+                try
+                {
+                    using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
+                    {
+                        conn.Open();
+                        using (SqlCommand cmd = new SqlCommand("dbo.sp_XoaThietBi", conn))
+                        {
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.Parameters.AddWithValue("@MaTB", txtMaTB.Text);
+
+                            int rows = cmd.ExecuteNonQuery();
+                            MessageBox.Show(rows > 0 ? "Xoá thành công!" : "Không tìm thấy thiết bị.");
+                        }
+                    }
+                    LoadThietBi();
+                }
+                catch (SqlException ex)
+                {
+                    string msg = SqlErrorHandler.Translate(ex);
+                    MessageBox.Show(msg, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Có lỗi xảy ra: " + ex.Message,
+                                    "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            string tuKhoa = txtSearch.Text.Trim();
+
+            try
+            {
                 using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
                 {
                     conn.Open();
-                    using (SqlCommand cmd = new SqlCommand("sp_XoaThietBi", conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_TimKiemThietBi", conn))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@MaTB", txtMaTB.Text);
 
-                        int rows = cmd.ExecuteNonQuery();
-                        MessageBox.Show(rows > 0 ? "Xoá thành công!" : "Không tìm thấy thiết bị.");
+                        if (string.IsNullOrEmpty(tuKhoa))
+                            cmd.Parameters.AddWithValue("@TuKhoa", DBNull.Value);
+                        else
+                            cmd.Parameters.AddWithValue("@TuKhoa", tuKhoa);
+
+                        SqlDataAdapter da = new SqlDataAdapter(cmd);
+                        DataTable dt = new DataTable();
+                        da.Fill(dt);
+
+                        dgvThietBi.DataSource = dt;
                     }
                 }
-                LoadThietBi();
+            }
+            catch (SqlException ex)
+            {
+                string msg = SqlErrorHandler.Translate(ex);
+                MessageBox.Show(msg, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Có lỗi xảy ra: " + ex.Message,
+                                "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -180,9 +276,6 @@ namespace QLTB
             }
         }
 
-        private void tabReport_Click(object sender, EventArgs e)
-        {
-        }
 
         private void guna2TabControl1_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -261,31 +354,6 @@ namespace QLTB
             guna2TabControl1.TabButtonSelectedState.InnerColor = Color.White;
 
             guna2TabControl1.TabButtonSize = new Size(180, 50);
-        }
-
-        private void btnSearch_Click(object sender, EventArgs e)
-        {
-            string tuKhoa = txtSearch.Text.Trim(); 
-
-            using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
-            {
-                conn.Open();
-                using (SqlCommand cmd = new SqlCommand("sp_TimKiemThietBi", conn))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-
-                    if (string.IsNullOrEmpty(tuKhoa))
-                        cmd.Parameters.AddWithValue("@TuKhoa", DBNull.Value);
-                    else
-                        cmd.Parameters.AddWithValue("@TuKhoa", tuKhoa);
-
-                    SqlDataAdapter da = new SqlDataAdapter(cmd);
-                    DataTable dt = new DataTable();
-                    da.Fill(dt);
-
-                    dgvThietBi.DataSource = dt;
-                }
-            }
         }
     }
 }

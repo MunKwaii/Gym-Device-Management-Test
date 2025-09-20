@@ -28,56 +28,137 @@ namespace QLTB
 
         private void Form_BaoTriLog_Load(object sender, EventArgs e)
         {
-            // Gán giá trị vào các TextBox
             txtMaTB.Text = _maTB;
             txtTenTB.Text = _tenTB;
-
-            // Thiết lập ComboBox kết quả bảo trì
             cboKetQua.Items.Clear();
             cboKetQua.Items.AddRange(new object[] { "Sửa xong", "Không sửa được", "Hỏng" });
             cboKetQua.DropDownStyle = ComboBoxStyle.DropDownList;
-
-            // Load lịch sử bảo trì
             LoadBaoTriHistory();
         }
 
         private void btnLuu_Click(object sender, EventArgs e)
         {
-            using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
+            try
             {
-                conn.Open();
-                using (SqlCommand cmd = new SqlCommand("sp_ThemBaoTri", conn))
+                using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@MaTB", txtMaTB.Text);
-                    cmd.Parameters.AddWithValue("@NgayBaoTri", dtNgayBaoTri.Value.Date);
-                    cmd.Parameters.AddWithValue("@MoTa", txtMoTa.Text);
-                    cmd.Parameters.AddWithValue("@ChiPhi", double.TryParse(txtChiPhi.Text, out double cp) ? cp : 0);
-                    cmd.Parameters.AddWithValue("@KetQua", cboKetQua.Text);
+                    conn.Open();
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_ThemBaoTri", conn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@MaTB", txtMaTB.Text);
+                        cmd.Parameters.AddWithValue("@NgayBaoTri", dtNgayBaoTri.Value.Date);
+                        cmd.Parameters.AddWithValue("@MoTa", txtMoTa.Text);
+                        cmd.Parameters.AddWithValue("@ChiPhi", double.TryParse(txtChiPhi.Text, out double cp) ? cp : 0);
+                        cmd.Parameters.AddWithValue("@KetQua", cboKetQua.Text);
 
-                    int rows = cmd.ExecuteNonQuery();
-                    MessageBox.Show(rows > 0 ? "Lưu log bảo trì thành công!" : "Không thể lưu log bảo trì.");
+                        int rows = cmd.ExecuteNonQuery();
+                        MessageBox.Show(rows > 0 ? "Lưu log bảo trì thành công!" : "Không thể lưu log bảo trì.");
+                    }
+                    LoadBaoTriHistory();
                 }
             }
-            LoadBaoTriHistory();
+            catch (SqlException ex)
+            {
+                string msg = SqlErrorHandler.Translate(ex);
+                MessageBox.Show(msg, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Có lỗi xảy ra: " + ex.Message,
+                                "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void LoadBaoTriHistory()
         {
-            using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
+            try
             {
-                conn.Open();
-                using (SqlCommand cmd = new SqlCommand("sp_GetBaoTriByMaTB", conn))
+                using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@MaTB", _maTB);
+                    conn.Open();
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_GetBaoTriByMaTB", conn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@MaTB", _maTB);
 
-                    SqlDataAdapter da = new SqlDataAdapter(cmd);
-                    DataTable dt = new DataTable();
-                    da.Fill(dt);
-                    dgvBaoTri.DataSource = dt;
+                        SqlDataAdapter da = new SqlDataAdapter(cmd);
+                        DataTable dt = new DataTable();
+                        da.Fill(dt);
+                        dgvBaoTri.DataSource = dt;
+                    }
                 }
             }
+            catch (SqlException ex)
+            {
+                string msg = SqlErrorHandler.Translate(ex);
+                MessageBox.Show(msg, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Có lỗi xảy ra: " + ex.Message,
+                                "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+        }
+
+        private void btnXoa_Click(object sender, EventArgs e)
+        {
+            try 
+            {
+                if (dgvBaoTri.CurrentRow == null)
+                {
+                    MessageBox.Show("Vui lòng chọn log cần xoá.");
+                    return;
+                }
+
+                int maBT = Convert.ToInt32(dgvBaoTri.CurrentRow.Cells["MaBT"].Value);
+
+                if (MessageBox.Show("Bạn có chắc muốn xoá log này?", "Xác nhận",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    try
+                    {
+                        using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
+                        {
+                            conn.Open();
+                            using (SqlCommand cmd = new SqlCommand("dbo.sp_XoaBaoTri", conn))
+                            {
+                                cmd.CommandType = CommandType.StoredProcedure;
+                                cmd.Parameters.AddWithValue("@MaBT", maBT); 
+
+                                int rows = cmd.ExecuteNonQuery();
+                                if (rows > 0)
+                                    MessageBox.Show("Xóa log thành công!");
+                                else
+                                    MessageBox.Show("Không tìm thấy log cần xóa.");
+                            }
+                        }
+                        LoadBaoTriHistory(); 
+                    }
+                    catch (SqlException ex)
+                    {
+                        string msg = SqlErrorHandler.Translate(ex);
+                        MessageBox.Show(msg, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Có lỗi xảy ra: " + ex.Message,
+                                        "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                string msg = SqlErrorHandler.Translate(ex);
+                MessageBox.Show(msg, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Có lỗi xảy ra: " + ex.Message,
+                                "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
         }
 
         private void btnDong_Click(object sender, EventArgs e)
@@ -121,5 +202,7 @@ namespace QLTB
             dgvBaoTri.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvBaoTri.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         }
+
+       
     }
 }

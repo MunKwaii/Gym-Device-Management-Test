@@ -23,23 +23,32 @@ namespace QLTB
         private void UserControl_VeSinh_Load(object sender, EventArgs e)
         {
             LoadTinhTrangVeSinh();
-            LoadTinhThongKe();
-            LoadThongKe();
-            ApplyCustomTheme(dgvThongKe);
             ApplyCustomTheme(dgvTinhTrangVeSinh);
-
         }
 
         private void LoadTinhTrangVeSinh()
         {
-            using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
+            try
             {
-                string sql = "SELECT * FROM v_ThietBi_VeSinh";
-                SqlDataAdapter da = new SqlDataAdapter(sql, conn);
-                DataTable dt = new DataTable();
-                da.Fill(dt);
+                using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
+                {
+                    string sql = "SELECT * FROM dbo.v_ThietBi_VeSinh";
+                    SqlDataAdapter da = new SqlDataAdapter(sql, conn);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
 
-                dgvTinhTrangVeSinh.DataSource = dt;
+                    dgvTinhTrangVeSinh.DataSource = dt;
+                }
+            }
+            catch (SqlException ex)
+            {
+                string msg = SqlErrorHandler.Translate(ex);
+                MessageBox.Show(msg, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Có lỗi xảy ra: " + ex.Message,
+                                "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -61,22 +70,73 @@ namespace QLTB
                 return;
             }
 
-            using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
+            try
             {
-                conn.Open();
-                using (SqlCommand cmd = new SqlCommand("sp_CapNhatVeSinh", conn))
+                using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@MaTB", maTB);
-                    cmd.Parameters.AddWithValue("@TinhTrang", newStatus);
-                    cmd.Parameters.AddWithValue("@NgayVeSinh", ngayVeSinh);
+                    conn.Open();
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_CapNhatVeSinh", conn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@MaTB", maTB);
+                        cmd.Parameters.AddWithValue("@TinhTrang", newStatus);
+                        cmd.Parameters.AddWithValue("@NgayVeSinh", ngayVeSinh);
 
-                    cmd.ExecuteNonQuery();
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                MessageBox.Show("Cập nhật thành công!");
+                LoadTinhTrangVeSinh();
+            }
+            catch (SqlException ex)
+            {
+                string msg = SqlErrorHandler.Translate(ex);
+                MessageBox.Show(msg, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Có lỗi xảy ra: " + ex.Message,
+                                "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            string tuKhoa = txtSearch.Text.Trim();
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_TimKiemThietBiVeSinh", conn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        if (string.IsNullOrEmpty(tuKhoa))
+                            cmd.Parameters.AddWithValue("@TuKhoa", DBNull.Value);
+                        else
+                            cmd.Parameters.AddWithValue("@TuKhoa", tuKhoa);
+
+                        SqlDataAdapter da = new SqlDataAdapter(cmd);
+                        DataTable dt = new DataTable();
+                        da.Fill(dt);
+
+                        dgvTinhTrangVeSinh.DataSource = dt;
+                    }
                 }
             }
-
-            MessageBox.Show("Cập nhật thành công!");
-            LoadTinhTrangVeSinh();
+            catch (SqlException ex)
+            {
+                string msg = SqlErrorHandler.Translate(ex);
+                MessageBox.Show(msg, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Có lỗi xảy ra: " + ex.Message,
+                                "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void dgvTinhTrangVeSinh_CellClick(object sender, DataGridViewCellEventArgs e)
@@ -98,51 +158,8 @@ namespace QLTB
                 }
             }
         }
+     
 
-
-        private void LoadTinhThongKe()
-        {
-            using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
-            {
-                string sql = "SELECT Nam, Thang, SoLan FROM v_VeSinhTheoThang ORDER BY Nam DESC, Thang DESC";
-                SqlDataAdapter da = new SqlDataAdapter(sql, conn);
-                DataTable dt = new DataTable();
-                da.Fill(dt);
-
-                dgvThongKe.DataSource = dt;
-            }
-        }
-
-        private void LoadThongKe()
-        {
-            using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
-            {
-                string sql = "SELECT * FROM v_VeSinhTheoThang ORDER BY Nam, Thang";
-                SqlDataAdapter da = new SqlDataAdapter(sql, conn);
-                DataTable dt = new DataTable();
-                da.Fill(dt);
-                dgvThongKe.DataSource = dt;
-                LoadChart(dt);
-            }
-        }
-
-        private void LoadChart(DataTable dt)
-        {
-            chartThongKe.Datasets.Clear();
-
-            GunaBarDataset dataset = new GunaBarDataset();
-            dataset.Label = "Số lần vệ sinh";
-
-            foreach (DataRow row in dt.Rows)
-            {
-                string label = $"{row["Thang"]}/{row["Nam"]}";
-                int value = Convert.ToInt32(row["SoLan"]);
-
-                dataset.DataPoints.Add(label, value);
-            }
-            chartThongKe.Datasets.Add(dataset);
-            chartThongKe.Update();
-        }
         private void ApplyCustomTheme(Guna2DataGridView dgv)
         {
             // Theme chung
@@ -179,5 +196,6 @@ namespace QLTB
             dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         }
+
     }
 }

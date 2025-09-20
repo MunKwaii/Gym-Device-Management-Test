@@ -83,6 +83,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SqlErrorHandler.cs" />
     <Compile Include="UserControl_Report.cs">
       <SubType>UserControl</SubType>
     </Compile>
