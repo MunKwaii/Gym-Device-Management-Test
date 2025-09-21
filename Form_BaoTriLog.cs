@@ -104,61 +104,47 @@ namespace QLTB
 
         private void btnXoa_Click(object sender, EventArgs e)
         {
-            try 
+            if (dgvBaoTri.CurrentRow == null)
             {
-                if (dgvBaoTri.CurrentRow == null)
-                {
-                    MessageBox.Show("Vui lòng chọn log cần xoá.");
-                    return;
-                }
+                MessageBox.Show("Vui lòng chọn log cần xoá.");
+                return;
+            }
 
-                int maBT = Convert.ToInt32(dgvBaoTri.CurrentRow.Cells["MaBT"].Value);
+            int maBT = Convert.ToInt32(dgvBaoTri.CurrentRow.Cells["MaBT"].Value);
 
-                if (MessageBox.Show("Bạn có chắc muốn xoá log này?", "Xác nhận",
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            if (MessageBox.Show("Bạn có chắc muốn xoá log này?", "Xác nhận",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                try
                 {
-                    try
+                    using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
                     {
-                        using (SqlConnection conn = new SqlConnection(DatabaseConfig.ConnectionString))
+                        conn.Open();
+                        using (SqlCommand cmd = new SqlCommand("dbo.sp_XoaBaoTri", conn))
                         {
-                            conn.Open();
-                            using (SqlCommand cmd = new SqlCommand("dbo.sp_XoaBaoTri", conn))
-                            {
-                                cmd.CommandType = CommandType.StoredProcedure;
-                                cmd.Parameters.AddWithValue("@MaBT", maBT); 
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.Parameters.AddWithValue("@MaBT", maBT);
 
-                                int rows = cmd.ExecuteNonQuery();
-                                if (rows > 0)
-                                    MessageBox.Show("Xóa log thành công!");
-                                else
-                                    MessageBox.Show("Không tìm thấy log cần xóa.");
-                            }
+                            int rows = cmd.ExecuteNonQuery();
+                            if (rows > 0)
+                                MessageBox.Show("Xóa log thành công!");
+                            else
+                                MessageBox.Show("Không tìm thấy log cần xóa.");
                         }
-                        LoadBaoTriHistory(); 
                     }
-                    catch (SqlException ex)
-                    {
-                        string msg = SqlErrorHandler.Translate(ex);
-                        MessageBox.Show(msg, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("Có lỗi xảy ra: " + ex.Message,
-                                        "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
+                    LoadBaoTriHistory();
+                }
+                catch (SqlException ex)
+                {
+                    string msg = SqlErrorHandler.Translate(ex);
+                    MessageBox.Show(msg, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Có lỗi xảy ra: " + ex.Message,
+                                    "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
-            catch (SqlException ex)
-            {
-                string msg = SqlErrorHandler.Translate(ex);
-                MessageBox.Show(msg, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Có lỗi xảy ra: " + ex.Message,
-                                "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
         }
 
         private void btnDong_Click(object sender, EventArgs e)

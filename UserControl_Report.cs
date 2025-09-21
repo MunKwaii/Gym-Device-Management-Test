@@ -335,6 +335,8 @@ namespace QLTB
                 MessageBox.Show("Lỗi xuất CSV: " + ex.Message);
             }
         }
+
+
         private void LoadThongKeVeSnh()
         {
             try
@@ -365,7 +367,8 @@ namespace QLTB
             LoadThongKeVeSnh();
         }
 
-        private void btnExportExcelThongKeVeSinh_Click(object sender, EventArgs e)
+   
+        private void btnExportThongKeVeSinh_Click(object sender, EventArgs e)
         {
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.Filter = "CSV Files|*.csv";
@@ -432,5 +435,6 @@ namespace QLTB
             dgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         }
 
+       
     }
 }

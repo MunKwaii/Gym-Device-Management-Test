@@ -54,6 +54,32 @@ CREATE TABLE VeSinhLog (
 );
 GO
 
+
+
+
+------------------------------VIEW---------------------------------
+CREATE VIEW v_ThietBi
+AS
+SELECT tb.MaTB,
+       tb.TenTB,
+       tb.MaLoai,
+       lt.TenLoai,
+       tb.NgayNhap,
+       tb.TinhTrang,
+       tb.ViTri
+FROM ThietBi tb
+LEFT JOIN LoaiThietBi lt ON tb.MaLoai = lt.MaLoai;
+GO
+
+
+CREATE VIEW v_GetCanBaoTri
+AS
+SELECT MaTB, TenTB, TinhTrang, ViTri
+FROM ThietBi
+WHERE TinhTrang = N'Cần bảo trì';
+GO
+
+
 CREATE VIEW v_VeSinhTheoThang
 AS
 SELECT YEAR(NgayVeSinh) AS Nam, MONTH(NgayVeSinh) AS Thang, COUNT(*) AS SoLan
@@ -61,7 +87,8 @@ FROM VeSinhLog
 GROUP BY YEAR(NgayVeSinh), MONTH(NgayVeSinh);
 GO
 
-CREATE OR ALTER VIEW v_ThietBi_VeSinh
+
+CREATE VIEW v_ThietBi_VeSinh
 AS
 SELECT 
     tb.MaTB,
@@ -73,30 +100,10 @@ LEFT JOIN VeSinhLog v ON v.MaTB = tb.MaTB
 GROUP BY tb.MaTB, tb.TenTB, tb.TinhTrangVeSinh;
 GO
 
-CREATE OR ALTER PROCEDURE sp_CapNhatVeSinh
-    @MaTB VARCHAR(10),
-    @TinhTrang NVARCHAR(20),
-    @NgayVeSinh DATE
-AS
-BEGIN
-    BEGIN TRY
-        BEGIN TRANSACTION;
 
-        -- chỉ update, KHÔNG chèn log nữa
-        UPDATE ThietBi
-        SET TinhTrangVeSinh = @TinhTrang
-        WHERE MaTB = @MaTB;
 
-        COMMIT TRANSACTION;
-    END TRY
-    BEGIN CATCH
-        ROLLBACK TRANSACTION;
-        THROW;
-    END CATCH
-END
-GO
-
-CREATE OR ALTER TRIGGER trg_VeSinh_Update
+------------------------------TRIGGER---------------------------------
+CREATE TRIGGER trg_VeSinh_Update
 ON ThietBi
 AFTER UPDATE
 AS
@@ -129,6 +136,7 @@ BEGIN
 END
 GO
 
+
 CREATE TRIGGER trg_UpdateVeSinh ON v_ThietBi_VeSinh
 INSTEAD OF UPDATE
 AS
@@ -140,217 +148,8 @@ BEGIN
 END
 GO
 
--- Thêm thiết bị
-CREATE PROCEDURE sp_ThemThietBi
-    @MaTB VARCHAR(10),
-    @TenTB NVARCHAR(100),
-    @MaLoai VARCHAR(10),
-    @NgayNhap DATE,
-    @TinhTrang NVARCHAR(20),
-    @ViTri NVARCHAR(100)
-AS
-BEGIN
-    INSERT INTO ThietBi(MaTB, TenTB, MaLoai, NgayNhap, TinhTrang, ViTri)
-    VALUES(@MaTB, @TenTB, @MaLoai, @NgayNhap, @TinhTrang, @ViTri);
-END
-GO
 
---Tim kiem
-CREATE OR ALTER PROCEDURE sp_TimKiemThietBi
-    @TuKhoa NVARCHAR(100) = NULL
-AS
-BEGIN
-
-    SELECT tb.MaTB,
-           tb.TenTB,
-           tb.MaLoai,
-           lt.TenLoai,
-           tb.NgayNhap,
-           tb.TinhTrang,
-           tb.ViTri
-    FROM ThietBi tb
-    LEFT JOIN LoaiThietBi lt ON tb.MaLoai = lt.MaLoai
-    WHERE @TuKhoa IS NULL 
-          OR tb.MaTB LIKE N'%' + @TuKhoa + N'%'
-          OR tb.TenTB LIKE N'%' + @TuKhoa + N'%'
-          OR lt.TenLoai LIKE N'%' + @TuKhoa + N'%'
-    ORDER BY tb.NgayNhap DESC;
-END
-GO
-
-
-CREATE OR ALTER PROCEDURE sp_TimKiemThietBiVeSinh
-    @TuKhoa NVARCHAR(100) = NULL
-AS
-BEGIN
-    SELECT MaTB,
-           TenTB,
-           TinhTrangVeSinh,
-           NgayVeSinh
-    FROM v_ThietBi_VeSinh
-    WHERE @TuKhoa IS NULL
-          OR MaTB LIKE N'%' + @TuKhoa + N'%'
-          OR TenTB LIKE N'%' + @TuKhoa + N'%'
-          OR TinhTrangVeSinh LIKE N'%' + @TuKhoa + N'%'
-          OR CONVERT(NVARCHAR(10), NgayVeSinh, 120) LIKE N'%' + @TuKhoa + N'%'
-    ORDER BY NgayVeSinh DESC;
-END
-GO
-
-
-CREATE OR ALTER PROCEDURE sp_TimKiemCanBaoTri
-    @TuKhoa NVARCHAR(100) = NULL
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    SELECT MaTB,
-           TenTB,
-           TinhTrang,
-           ViTri
-    FROM v_GetCanBaoTri
-    WHERE @TuKhoa IS NULL
-          OR MaTB LIKE N'%' + @TuKhoa + N'%'
-          OR TenTB LIKE N'%' + @TuKhoa + N'%'
-          OR TinhTrang LIKE N'%' + @TuKhoa + N'%'
-          OR ViTri LIKE N'%' + @TuKhoa + N'%'
-    ORDER BY TenTB;
-END
-GO
-
-
-
--- Sửa thiết bị
-CREATE PROCEDURE sp_SuaThietBi
-    @MaTB VARCHAR(10),
-    @TenTB NVARCHAR(100),
-    @MaLoai VARCHAR(10),
-    @NgayNhap DATE,
-    @TinhTrang NVARCHAR(20),
-    @ViTri NVARCHAR(100)
-AS
-BEGIN
-    UPDATE ThietBi
-    SET TenTB=@TenTB, MaLoai=@MaLoai, NgayNhap=@NgayNhap,
-        TinhTrang=@TinhTrang, ViTri=@ViTri
-    WHERE MaTB=@MaTB;
-END
-GO
-
--- Xóa thiết bị có transaction
-CREATE OR ALTER PROCEDURE sp_XoaThietBi
-    @MaTB VARCHAR(10)
-AS
-BEGIN
-    BEGIN TRY
-        BEGIN TRANSACTION;   -- bắt đầu giao dịch
-
-		DELETE FROM VeSinhLog WHERE MaTB = @MaTB;
-
-        -- Xoá log bảo trì liên quan trước (nếu có ràng buộc khoá ngoại)
-        DELETE FROM BaoTri WHERE MaTB = @MaTB;
-
-        -- Xoá thiết bị
-        DELETE FROM ThietBi WHERE MaTB = @MaTB;
-
-        COMMIT TRANSACTION;  -- thành công thì lưu lại
-    END TRY
-    BEGIN CATCH
-        ROLLBACK TRANSACTION; -- lỗi thì huỷ tất cả
-        -- ném lỗi ra ngoài để biết nguyên nhân
-        THROW;
-    END CATCH
-END
-GO
-
--- Lấy danh sách thiết bị
-CREATE PROCEDURE sp_GetThietBi
-AS
-BEGIN
-    SELECT tb.MaTB,
-           tb.TenTB,
-           tb.MaLoai,
-           lt.TenLoai,  -- cột tên loại
-           tb.NgayNhap,
-           tb.TinhTrang,
-           tb.ViTri
-    FROM dbo.ThietBi tb
-    LEFT JOIN dbo.LoaiThietBi lt ON tb.MaLoai = lt.MaLoai;
-END
-GO
-
---View
-CREATE VIEW v_ThietBi
-AS
-SELECT tb.MaTB,
-       tb.TenTB,
-       tb.MaLoai,
-       lt.TenLoai,
-       tb.NgayNhap,
-       tb.TinhTrang,
-       tb.ViTri
-FROM ThietBi tb
-LEFT JOIN LoaiThietBi lt ON tb.MaLoai = lt.MaLoai;
-GO
-
-CREATE PROCEDURE sp_UpdateTinhTrang
-    @MaTB VARCHAR(10),
-    @TinhTrang NVARCHAR(20)
-AS
-BEGIN
-    UPDATE ThietBi
-    SET TinhTrang = @TinhTrang
-    WHERE MaTB = @MaTB;
-END
-GO
-
-CREATE OR ALTER PROCEDURE sp_ThemBaoTri
-    @MaTB VARCHAR(10),
-    @MaNV VARCHAR(10) = NULL,
-    @NgayBaoTri DATE,
-    @MoTa NVARCHAR(200),
-    @ChiPhi FLOAT,
-    @KetQua NVARCHAR(50)
-AS
-BEGIN
-    BEGIN TRY
-        BEGIN TRANSACTION;
-
-        INSERT INTO BaoTri(MaTB, MaNV, NgayBaoTri, MoTa, ChiPhi, KetQua)
-        VALUES(@MaTB, @MaNV, @NgayBaoTri, @MoTa, @ChiPhi, @KetQua);
-
-        -- Trigger sẽ tự động update TinhTrang bên ThietBi
-        COMMIT TRANSACTION;
-    END TRY
-    BEGIN CATCH
-        ROLLBACK TRANSACTION;
-        THROW; -- trả lỗi ra ngoài
-    END CATCH
-END
-GO
-
-
-CREATE PROCEDURE sp_GetBaoTriByMaTB
-    @MaTB VARCHAR(10)
-AS
-BEGIN
-    SELECT MaBT, MaTB, NgayBaoTri, MoTa, ChiPhi, KetQua
-    FROM BaoTri
-    WHERE MaTB = @MaTB
-    ORDER BY NgayBaoTri DESC;
-END
-GO
-
-CREATE OR ALTER PROCEDURE sp_XoaBaoTri
-    @MaBT INT
-AS
-BEGIN
-    DELETE FROM BaoTri
-    WHERE MaBT = @MaBT;
-END
-GO
-
-CREATE OR ALTER TRIGGER trg_CheckChiPhi
+CREATE TRIGGER trg_CheckChiPhi
 ON BaoTri
 AFTER INSERT
 AS
@@ -389,7 +188,7 @@ END
 GO
 
 
-CREATE OR ALTER TRIGGER trg_TotalChiPhi
+CREATE TRIGGER trg_TotalChiPhi
 ON BaoTri
 AFTER INSERT
 AS
@@ -417,7 +216,8 @@ BEGIN
 END
 GO
 
-CREATE OR ALTER TRIGGER trg_CheckVeSinh_OnlyWhenUsable
+
+CREATE TRIGGER trg_CheckVeSinh_OnlyWhenUsable
 ON ThietBi
 AFTER UPDATE
 AS
@@ -441,6 +241,9 @@ BEGIN
 END
 GO
 
+
+
+------------------------------FUNCTION---------------------------------
 CREATE FUNCTION fn_TongChiPhiThietBi(@MaTB VARCHAR(10))
 RETURNS FLOAT
 AS
@@ -453,6 +256,7 @@ BEGIN
 END
 GO
 
+
 CREATE FUNCTION fn_AvgChiPhiBaoTri(@MaTB VARCHAR(10))
 RETURNS FLOAT
 AS
@@ -461,9 +265,10 @@ BEGIN
     SELECT @Avg = AVG(ChiPhi)
     FROM BaoTri
     WHERE MaTB = @MaTB;
-    RETURN ISNULL(@Avg,0);CREATE OR ALTER TRIGGER trg_CheckChiPhi
+    RETURN ISNULL(@Avg,0);
 END
 GO
+
 
 CREATE FUNCTION fn_CountCanBaoTri()
 RETURNS INT
@@ -488,13 +293,7 @@ RETURN
     WHERE TinhTrang = N'Cần bảo trì'
 );
 GO
---view
-CREATE VIEW v_GetCanBaoTri
-AS
-SELECT MaTB, TenTB, TinhTrang, ViTri
-FROM ThietBi
-WHERE TinhTrang = N'Cần bảo trì';
-GO
+
 
 CREATE FUNCTION fn_ReportTongChiPhi()
 RETURNS TABLE
@@ -537,7 +336,231 @@ BEGIN
 END
 GO
 
--- Tạo role
+
+
+------------------------------PROCEDURE---------------------------------
+CREATE PROCEDURE sp_CapNhatVeSinh
+    @MaTB VARCHAR(10),
+    @TinhTrang NVARCHAR(20),
+    @NgayVeSinh DATE
+AS
+BEGIN
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        -- chỉ update, KHÔNG chèn log nữa
+        UPDATE ThietBi
+        SET TinhTrangVeSinh = @TinhTrang
+        WHERE MaTB = @MaTB;
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END
+GO
+
+
+CREATE PROCEDURE sp_ThemThietBi
+    @MaTB VARCHAR(10),
+    @TenTB NVARCHAR(100),
+    @MaLoai VARCHAR(10),
+    @NgayNhap DATE,
+    @TinhTrang NVARCHAR(20),
+    @ViTri NVARCHAR(100)
+AS
+BEGIN
+    INSERT INTO ThietBi(MaTB, TenTB, MaLoai, NgayNhap, TinhTrang, ViTri)
+    VALUES(@MaTB, @TenTB, @MaLoai, @NgayNhap, @TinhTrang, @ViTri);
+END
+GO
+
+
+CREATE PROCEDURE sp_SuaThietBi
+    @MaTB VARCHAR(10),
+    @TenTB NVARCHAR(100),
+    @MaLoai VARCHAR(10),
+    @NgayNhap DATE,
+    @TinhTrang NVARCHAR(20),
+    @ViTri NVARCHAR(100)
+AS
+BEGIN
+    UPDATE ThietBi
+    SET TenTB=@TenTB, MaLoai=@MaLoai, NgayNhap=@NgayNhap,
+        TinhTrang=@TinhTrang, ViTri=@ViTri
+    WHERE MaTB=@MaTB;
+END
+GO
+
+
+CREATE PROCEDURE sp_XoaThietBi
+    @MaTB VARCHAR(10)
+AS
+BEGIN
+    BEGIN TRY
+        BEGIN TRANSACTION;   -- bắt đầu giao dịch
+
+		DELETE FROM VeSinhLog WHERE MaTB = @MaTB;
+
+        -- Xoá log bảo trì liên quan trước (nếu có ràng buộc khoá ngoại)
+        DELETE FROM BaoTri WHERE MaTB = @MaTB;
+
+        -- Xoá thiết bị
+        DELETE FROM ThietBi WHERE MaTB = @MaTB;
+
+        COMMIT TRANSACTION;  -- thành công thì lưu lại
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION; -- lỗi thì huỷ tất cả
+        -- ném lỗi ra ngoài để biết nguyên nhân
+        THROW;
+    END CATCH
+END
+GO
+
+
+CREATE PROCEDURE sp_GetThietBi
+AS
+BEGIN
+    SELECT tb.MaTB,
+           tb.TenTB,
+           tb.MaLoai,
+           lt.TenLoai,  -- cột tên loại
+           tb.NgayNhap,
+           tb.TinhTrang,
+           tb.ViTri
+    FROM dbo.ThietBi tb
+    LEFT JOIN dbo.LoaiThietBi lt ON tb.MaLoai = lt.MaLoai;
+END
+GO
+
+
+
+CREATE PROCEDURE sp_UpdateTinhTrang
+    @MaTB VARCHAR(10),
+    @TinhTrang NVARCHAR(20)
+AS
+BEGIN
+    UPDATE ThietBi
+    SET TinhTrang = @TinhTrang
+    WHERE MaTB = @MaTB;
+END
+GO
+
+CREATE PROCEDURE sp_ThemBaoTri
+    @MaTB VARCHAR(10),
+    @MaNV VARCHAR(10) = NULL,
+    @NgayBaoTri DATE,
+    @MoTa NVARCHAR(200),
+    @ChiPhi FLOAT,
+    @KetQua NVARCHAR(50)
+AS
+BEGIN
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        INSERT INTO BaoTri(MaTB, MaNV, NgayBaoTri, MoTa, ChiPhi, KetQua)
+        VALUES(@MaTB, @MaNV, @NgayBaoTri, @MoTa, @ChiPhi, @KetQua);
+
+        -- Trigger sẽ tự động update TinhTrang bên ThietBi
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW; -- trả lỗi ra ngoài
+    END CATCH
+END
+GO
+
+
+CREATE PROCEDURE sp_GetBaoTriByMaTB
+    @MaTB VARCHAR(10)
+AS
+BEGIN
+    SELECT MaBT, MaTB, NgayBaoTri, MoTa, ChiPhi, KetQua
+    FROM BaoTri
+    WHERE MaTB = @MaTB
+    ORDER BY NgayBaoTri DESC;
+END
+GO
+
+CREATE PROCEDURE sp_XoaBaoTri
+    @MaBT INT
+AS
+BEGIN
+    DELETE FROM BaoTri
+    WHERE MaBT = @MaBT;
+END
+GO
+
+CREATE PROCEDURE sp_TimKiemThietBi
+    @TuKhoa NVARCHAR(100) = NULL
+AS
+BEGIN
+
+    SELECT tb.MaTB,
+           tb.TenTB,
+           tb.MaLoai,
+           lt.TenLoai,
+           tb.NgayNhap,
+           tb.TinhTrang,
+           tb.ViTri
+    FROM ThietBi tb
+    LEFT JOIN LoaiThietBi lt ON tb.MaLoai = lt.MaLoai
+    WHERE @TuKhoa IS NULL 
+          OR tb.MaTB LIKE N'%' + @TuKhoa + N'%'
+          OR tb.TenTB LIKE N'%' + @TuKhoa + N'%'
+          OR lt.TenLoai LIKE N'%' + @TuKhoa + N'%'
+    ORDER BY tb.NgayNhap DESC;
+END
+GO
+
+
+CREATE OR ALTER PROCEDURE sp_TimKiemThietBiVeSinh
+    @TuKhoa NVARCHAR(100) = NULL
+AS
+BEGIN
+    SELECT MaTB,
+           TenTB,
+           TinhTrangVeSinh,
+           NgayVeSinh
+    FROM v_ThietBi_VeSinh
+    WHERE @TuKhoa IS NULL
+          OR MaTB LIKE N'%' + @TuKhoa + N'%'
+          OR TenTB LIKE N'%' + @TuKhoa + N'%'
+          OR TinhTrangVeSinh LIKE N'%' + @TuKhoa + N'%'
+          OR CONVERT(NVARCHAR(10), NgayVeSinh, 120) LIKE N'%' + @TuKhoa + N'%'
+    ORDER BY NgayVeSinh DESC;
+END
+GO
+
+
+CREATE PROCEDURE sp_TimKiemCanBaoTri
+    @TuKhoa NVARCHAR(100) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT MaTB,
+           TenTB,
+           TinhTrang,
+           ViTri
+    FROM v_GetCanBaoTri
+    WHERE @TuKhoa IS NULL
+          OR MaTB LIKE N'%' + @TuKhoa + N'%'
+          OR TenTB LIKE N'%' + @TuKhoa + N'%'
+          OR TinhTrang LIKE N'%' + @TuKhoa + N'%'
+          OR ViTri LIKE N'%' + @TuKhoa + N'%'
+    ORDER BY TenTB;
+END
+GO
+
+------------------------------Phân quyền---------------------------------
+
+
+-- Tạo role tương ứng cho từng loại người dùng
 CREATE ROLE rl_admin;
 CREATE ROLE rl_pt;        -- PT (huấn luyện viên cá nhân)
 CREATE ROLE rl_le_tan;    -- lễ tân
@@ -642,9 +665,6 @@ GRANT SELECT ON OBJECT::dbo.v_ThietBi TO rl_bao_tri;
 GRANT EXECUTE ON OBJECT::dbo.sp_ThemBaoTri TO rl_bao_tri;
 GRANT EXECUTE ON OBJECT::dbo.sp_GetBaoTriByMaTB TO rl_bao_tri;
 GRANT EXECUTE ON OBJECT::dbo.sp_TimKiemThietBi TO rl_bao_tri;
-
--- Cho phép xem báo cáo (function bảo trì)
-GRANT SELECT ON OBJECT::dbo.fn_GetCanBaoTri TO rl_bao_tri;
 
 
 
