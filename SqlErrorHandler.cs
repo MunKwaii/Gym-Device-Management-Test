@@ -20,6 +20,9 @@ namespace QLTB
                 if (error.Message.Contains("Thiết bị không ở trạng thái Đang sử dụng"))
                     return "Thiết bị không ở trạng thái đang sử dụng nên không thể cập nhật vệ sinh.";
 
+                if (error.Message.Contains("Chỉ được ghi log bảo trì khi"))
+                    return "Chỉ được ghi log bảo trì khi thiết bị đang ở trạng thái Cần bảo trì.";
+
                 switch (error.Number)
                 {
                     case 229:  
@@ -27,7 +30,7 @@ namespace QLTB
                     case 2627:  
                         return "Dữ liệu đã tồn tại, vui lòng nhập giá trị khác.";
                     case 547:   
-                        return "Không thể xóa/cập nhật vì dữ liệu đang được tham chiếu.";
+                        return "Không thể xóa/cập nhật vì dữ liệu không đúng.";
                     case 515:   
                         return "Một số trường bắt buộc chưa được nhập.";
                     default:
