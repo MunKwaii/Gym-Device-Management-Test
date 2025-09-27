@@ -321,7 +321,7 @@ END
 GO
 
 
-CREATE FUNCTION fn_CountCanBaoTri()
+CREATE FUNCTION fn_CountCanBaoTri()  
 RETURNS INT
 AS
 BEGIN
@@ -331,18 +331,6 @@ BEGIN
     WHERE TinhTrang = N'Cần bảo trì';
     RETURN @Count;
 END
-GO
-
-
-CREATE FUNCTION fn_GetCanBaoTri()
-RETURNS TABLE
-AS
-RETURN
-(
-    SELECT MaTB, TenTB, TinhTrang, ViTri
-    FROM ThietBi
-    WHERE TinhTrang = N'Cần bảo trì'
-);
 GO
 
 
@@ -360,18 +348,17 @@ RETURN
 );
 GO
 
-
 CREATE FUNCTION fn_ReportTopChiPhi_Multi()
 RETURNS @Result TABLE
 (
     MaTB VARCHAR(10),
     TenTB NVARCHAR(100),
-    TongChiPhi FLOAT
+    TopChiPhi FLOAT
 )
 AS
 BEGIN
     -- Bước 1: tổng chi phí từng thiết bị
-    INSERT INTO @Result (MaTB, TenTB, TongChiPhi)
+    INSERT INTO @Result (MaTB, TenTB, TopChiPhi)
     SELECT bt.MaTB, tb.TenTB, SUM(bt.ChiPhi)
     FROM BaoTri bt
     INNER JOIN ThietBi tb ON bt.MaTB = tb.MaTB
@@ -380,7 +367,7 @@ BEGIN
     -- Bước 2: giữ lại Top 5
     DELETE FROM @Result
     WHERE MaTB NOT IN (
-        SELECT TOP 5 MaTB FROM @Result ORDER BY TongChiPhi DESC
+        SELECT TOP 5 MaTB FROM @Result ORDER BY TopChiPhi DESC
     );
 
     RETURN;
@@ -470,23 +457,6 @@ BEGIN
     END CATCH
 END
 GO
-
-
-CREATE PROCEDURE sp_GetThietBi
-AS
-BEGIN
-    SELECT tb.MaTB,
-           tb.TenTB,
-           tb.MaLoai,
-           lt.TenLoai,  -- cột tên loại
-           tb.NgayNhap,
-           tb.TinhTrang,
-           tb.ViTri
-    FROM dbo.ThietBi tb
-    LEFT JOIN dbo.LoaiThietBi lt ON tb.MaLoai = lt.MaLoai;
-END
-GO
-
 
 
 CREATE PROCEDURE sp_UpdateTinhTrang
@@ -592,8 +562,6 @@ CREATE PROCEDURE sp_TimKiemCanBaoTri
     @TuKhoa NVARCHAR(100) = NULL
 AS
 BEGIN
-    SET NOCOUNT ON;
-
     SELECT MaTB,
            TenTB,
            TinhTrang,
